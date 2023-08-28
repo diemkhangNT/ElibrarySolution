@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanLyMonHoc", "QuanLyMonHoc\QuanLyMonHoc.csproj", "{21ECEACC-7CF2-455E-B74B-C6C1418FCBFE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{21ECEACC-7CF2-455E-B74B-C6C1418FCBFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21ECEACC-7CF2-455E-B74B-C6C1418FCBFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21ECEACC-7CF2-455E-B74B-C6C1418FCBFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21ECEACC-7CF2-455E-B74B-C6C1418FCBFE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1745F6C7-D7ED-400B-AE73-62DE31098FF9}
+	EndGlobalSection
+EndGlobal
