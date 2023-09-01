@@ -42,7 +42,7 @@ namespace QuanLyMonHoc.Migrations
 
                     b.HasKey("MaMH");
 
-                    b.ToTable("MonHoc");
+                    b.ToTable("MonHoc", (string)null);
                 });
 #pragma warning restore 612, 618
         }
