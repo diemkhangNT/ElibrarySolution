@@ -19,8 +19,8 @@ namespace QuanLyVaiTro.Model
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
         public DateTime NgayCapNhat { get; set; }
-
-        public virtual ICollection<PhanQuyen> PhanQuyens { get; set; }  
+          
+        public virtual IEnumerable<PhanQuyen> PhanQuyens { get; set; }  
 
     }
 }

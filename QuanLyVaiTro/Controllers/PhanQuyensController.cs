@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using QuanLyVaiTro.Data;
+using QuanLyVaiTro.Dto;
 using QuanLyVaiTro.Model;
+using QuanLyVaiTro.Services;
 
 namespace QuanLyVaiTro.Controllers
 {
@@ -15,60 +20,58 @@ namespace QuanLyVaiTro.Controllers
     public class PhanQuyensController : ControllerBase
     {
         private readonly VaiTroDbContext _context;
-
-        public PhanQuyensController(VaiTroDbContext context)
+        private readonly ICrudService _icrudService;
+        private readonly IMapper _mapper;
+        public PhanQuyensController(VaiTroDbContext context, ICrudService icrudService, IMapper mapper)
         {
             _context = context;
+            _icrudService = icrudService;
+            _mapper = mapper;
         }
 
         // GET: api/PhanQuyens
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PhanQuyen>>> GetPhanQuyens()
         {
-          if (_context.PhanQuyens == null)
-          {
-              return NotFound();
-          }
-            return await _context.PhanQuyens.ToListAsync();
+            List<PhanQuyen> phanQuyens = (List<PhanQuyen>)await _icrudService.Get_PhanQuyens();
+            if (phanQuyens == null)
+            {
+                return NotFound("Không tìm thấy dữ liệu!");
+            }
+            return Ok(phanQuyens.Select(pq => _mapper.Map<PhanQuyenDto>(pq)));
         }
 
         // GET: api/PhanQuyens/5
         [HttpGet("{id}")]
         public async Task<ActionResult<PhanQuyen>> GetPhanQuyen(string id)
         {
-          if (_context.PhanQuyens == null)
-          {
-              return NotFound();
-          }
-            var phanQuyen = await _context.PhanQuyens.FindAsync(id);
-
-            if (phanQuyen == null)
+            PhanQuyen pq = await _icrudService.Get_PhanQuyen(id);
+            if (pq == null)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy dữ liệu có mã " + id + "!!!");
             }
-
-            return phanQuyen;
+            return Ok(_mapper.Map<PhanQuyenDto>(pq));
         }
 
         // PUT: api/PhanQuyens/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPhanQuyen(string id, PhanQuyen phanQuyen)
+        public async Task<IActionResult> PutPhanQuyen(string id, PhanQuyenDto phanQuyenVM)
         {
-            if (id != phanQuyen.MaPQ)
+            if (id != phanQuyenVM.MaPQ)
             {
-                return BadRequest();
+                return BadRequest("Không tìm thấy dữ liệu!");
             }
-
-            _context.Entry(phanQuyen).State = EntityState.Modified;
-
+            PhanQuyen pq = await _icrudService.Get_PhanQuyen(id);
+            _mapper.Map(phanQuyenVM, pq);
+            _context.Entry(pq).State = EntityState.Modified;
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!PhanQuyenExists(id))
+                if (!_icrudService.PhanQuyenExists(id))
                 {
                     return NotFound();
                 }
@@ -78,50 +81,53 @@ namespace QuanLyVaiTro.Controllers
                 }
             }
 
-            return NoContent();
+            return CreatedAtAction("GetPhanQuyen", new { id = phanQuyenVM.MaPQ }, phanQuyenVM);
         }
 
         // POST: api/PhanQuyens
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<PhanQuyen>> PostPhanQuyen(PhanQuyen phanQuyen)
+        public async Task<ActionResult<PhanQuyen>> PostPhanQuyen(PhanQuyenDto phanQuyenVM)
         {
-          if (_context.PhanQuyens == null)
-          {
-              return Problem("Entity set 'VaiTroDbContext.PhanQuyens'  is null.");
-          }
-            _context.PhanQuyens.Add(phanQuyen);
+            var pq = _mapper.Map<PhanQuyen>(phanQuyenVM);
+            _icrudService.Post_PhanQuyen(pq);
             try
             {
                 await _context.SaveChangesAsync();
             }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 547)
+                {
+                    return BadRequest("Lỗi khóa ngoại!!");
+                }
+                else
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
             catch (DbUpdateException)
             {
-                if (PhanQuyenExists(phanQuyen.MaPQ))
+                if (_icrudService.PhanQuyenExists(pq.MaPQ))
                 {
-                    return Conflict();
+                    return Conflict("Khóa chính đã tồn tại!!");
                 }
                 else
                 {
                     throw;
                 }
             }
-
-            return CreatedAtAction("GetPhanQuyen", new { id = phanQuyen.MaPQ }, phanQuyen);
+            return CreatedAtAction("GetPhanQuyen", new { id = phanQuyenVM.MaPQ }, phanQuyenVM);
         }
 
         // DELETE: api/PhanQuyens/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePhanQuyen(string id)
         {
-            if (_context.PhanQuyens == null)
-            {
-                return NotFound();
-            }
-            var phanQuyen = await _context.PhanQuyens.FindAsync(id);
+            var phanQuyen = await _icrudService.Get_PhanQuyen(id);
             if (phanQuyen == null)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy dữ liệu!");
             }
 
             _context.PhanQuyens.Remove(phanQuyen);
@@ -129,10 +135,6 @@ namespace QuanLyVaiTro.Controllers
 
             return NoContent();
         }
-
-        private bool PhanQuyenExists(string id)
-        {
-            return (_context.PhanQuyens?.Any(e => e.MaPQ == id)).GetValueOrDefault();
-        }
+        
     }
 }

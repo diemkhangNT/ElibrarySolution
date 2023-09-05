@@ -19,9 +19,8 @@ namespace QuanLyVaiTro.Model
         public bool ThemMoi { get; set; } = false;
         public bool PheDuyet { get; set; } = false;
 
-
-        [ForeignKey("VaiTro")]
         public string MaVT { get; set; }
-        public VaiTro VaiTro { get; set; }
+        [ForeignKey("MaVT")]
+        public virtual VaiTro VaiTro { get; set; }
     }
 }

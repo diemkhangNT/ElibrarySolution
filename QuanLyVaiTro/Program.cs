@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuanLyVaiTro.Data;
+using QuanLyVaiTro.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 #region
+//Automapper
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 //cho phép mọi thiết bị kết nối đến API
 builder.Services.AddCors(option => option.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
@@ -20,8 +23,8 @@ builder.Services.AddDbContext<VaiTroDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Elibrary1"));
 });
 
-// Đăng ký interface IExistAlreadyService và thực hiện các chức năng của nó trong file ExistAlreadyService
-//builder.Services.AddScoped<IExistAlreadyService, ExistAlreadyService>();
+// Đăng ký interface I... và thực hiện các chức năng của nó trong file ...
+builder.Services.AddScoped<ICrudService, CrudService>();
 
 #endregion
 
