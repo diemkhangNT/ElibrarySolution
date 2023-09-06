@@ -56,7 +56,7 @@ namespace QuanLyVaiTro.Controllers
         // PUT: api/PhanQuyens/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPhanQuyen(string id, PhanQuyenDto phanQuyenVM)
+        public async Task<IActionResult> PutPhanQuyen(string id, [FromForm] PhanQuyenDto phanQuyenVM)
         {
             if (id != phanQuyenVM.MaPQ)
             {
@@ -81,30 +81,19 @@ namespace QuanLyVaiTro.Controllers
                 }
             }
 
-            return CreatedAtAction("GetPhanQuyen", new { id = phanQuyenVM.MaPQ }, phanQuyenVM);
+            return CreatedAtAction("GetPhanQuyen", new { id = pq.MaPQ }, pq);
         }
 
         // POST: api/PhanQuyens
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<PhanQuyen>> PostPhanQuyen(PhanQuyenDto phanQuyenVM)
+        public async Task<ActionResult<PhanQuyen>> PostPhanQuyen([FromForm]PhanQuyenDto phanQuyenVM)
         {
             var pq = _mapper.Map<PhanQuyen>(phanQuyenVM);
             _icrudService.Post_PhanQuyen(pq);
             try
             {
                 await _context.SaveChangesAsync();
-            }
-            catch (SqlException ex)
-            {
-                if (ex.Number == 547)
-                {
-                    return BadRequest("Lỗi khóa ngoại!!");
-                }
-                else
-                {
-                    return BadRequest(ex.Message);
-                }
             }
             catch (DbUpdateException)
             {
@@ -117,7 +106,7 @@ namespace QuanLyVaiTro.Controllers
                     throw;
                 }
             }
-            return CreatedAtAction("GetPhanQuyen", new { id = phanQuyenVM.MaPQ }, phanQuyenVM);
+            return CreatedAtAction("GetPhanQuyen", new { id = pq.MaPQ }, pq);
         }
 
         // DELETE: api/PhanQuyens/5

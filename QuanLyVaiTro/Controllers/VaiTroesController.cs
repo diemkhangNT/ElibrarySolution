@@ -55,7 +55,7 @@ namespace QuanLyVaiTro.Controllers
         // PUT: api/VaiTroes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutVaiTro(string id, VaiTroDto vaiTroVM)
+        public async Task<IActionResult> PutVaiTro(string id,[FromForm] VaiTroDto vaiTroVM)
         {
             if (id != vaiTroVM.MaVT)
             {
@@ -81,13 +81,13 @@ namespace QuanLyVaiTro.Controllers
                 }
             }
 
-            return CreatedAtAction("GetVaiTro", new { id = vaiTroVM.MaVT }, vaiTroVM); 
+            return CreatedAtAction("GetVaiTro", new { id = vt.MaVT }, vt); 
         }
 
         // POST: api/VaiTroes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<VaiTro>> PostVaiTro(VaiTroDto vaiTroVM)
+        public async Task<ActionResult<VaiTro>> PostVaiTro([FromForm] VaiTroDto vaiTroVM)
         {
             var vt = _mapper.Map<VaiTro>(vaiTroVM);
             _icrudService.Post_VaiTro(vt);
@@ -106,7 +106,7 @@ namespace QuanLyVaiTro.Controllers
                     throw;
                 }
             }
-            return CreatedAtAction("GetVaiTro", new { id = vaiTroVM.MaVT }, vaiTroVM);
+            return CreatedAtAction("GetVaiTro", new { id = vt.MaVT }, vt);
         }
 
         // DELETE: api/VaiTroes/5

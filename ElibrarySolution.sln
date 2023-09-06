@@ -4,8 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuanLyMonHoc", "QuanLyMonHoc\QuanLyMonHoc.csproj", "{21ECEACC-7CF2-455E-B74B-C6C1418FCBFE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8AEF9D79-C518-45CA-BA97-1FFE68AA2130} = {8AEF9D79-C518-45CA-BA97-1FFE68AA2130}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanLyVaiTro", "QuanLyVaiTro\QuanLyVaiTro.csproj", "{8AEF9D79-C518-45CA-BA97-1FFE68AA2130}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuanLyVaiTro", "QuanLyVaiTro\QuanLyVaiTro.csproj", "{8AEF9D79-C518-45CA-BA97-1FFE68AA2130}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

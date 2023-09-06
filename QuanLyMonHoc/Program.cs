@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuanLyMonHoc.Data;
+using QuanLyMonHoc.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +10,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 #region
+//Automapper
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 //cho phép mọi thiết bị kết nối đến API
 builder.Services.AddCors(option => option.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
@@ -19,8 +23,8 @@ builder.Services.AddDbContext<MonHocDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Elibrary"));
 });
 
-// Đăng ký interface IExistAlreadyService và thực hiện các chức năng của nó trong file ExistAlreadyService
-//builder.Services.AddScoped<IExistAlreadyService, ExistAlreadyService>();
+// Đăng ký interface và thực hiện các chức năng của nó trong file
+builder.Services.AddScoped<IExtension, Extension>();
 
 #endregion
 

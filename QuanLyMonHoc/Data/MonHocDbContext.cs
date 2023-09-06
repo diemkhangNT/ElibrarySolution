@@ -27,5 +27,13 @@ namespace QuanLyMonHoc.Data
             }
             return base.SaveChanges();
         }
+
+        public DbSet<QuanLyMonHoc.Model.HoiDap>? HoiDap { get; set; }
+
+        public DbSet<QuanLyMonHoc.Model.LopHoc>? LopHoc { get; set; }
+
+        public DbSet<QuanLyMonHoc.Model.NienKhoa>? NienKhoa { get; set; }
+
+        public DbSet<QuanLyMonHoc.Model.TraLoi>? TraLoi { get; set; }
     }
 }
