@@ -7,12 +7,12 @@ namespace QuanLyMonHoc.Model
     public class NienKhoa
     {
         [Key]
-        public string MaNK { get; set; }
+        public string? MaNK { get; set; }
         [Required]
         public int TGBatDau { get; set; }
         [Required]
         public int TGKetThuc { get; set; }
 
-        public virtual IEnumerable<LopHoc> LopHocs { get; set; }
+        public virtual IEnumerable<LopHoc>? LopHocs { get; set; }
     }
 }

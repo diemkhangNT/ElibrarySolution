@@ -10,6 +10,7 @@ namespace QuanLyMonHoc.Services
         public void AutoPK_LopHoc(LopHoc lopHoc);
         public void AutoPK_NienKhoa(NienKhoa nienKhoa);
         bool IsCheckTime(int tgBD, int tgKT);
+        bool IsCheckTime_put(int tgBD, int tgKT, string maNK);
         public void AutoPK_HoiDap(HoiDap hoiDap);
         public void AutoPK_TraLoi(TraLoi traLoi);
 

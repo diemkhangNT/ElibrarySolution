@@ -23,6 +23,6 @@ namespace QuanLyMonHoc.Model
         public virtual MonHoc monHoc { get; set; }
         public string MaHV { get; set; }
 
-        public virtual IEnumerable<TraLoi> TraLois { get; set; }
+        public virtual IEnumerable<TraLoi>? TraLois { get; set; }
     }
 }

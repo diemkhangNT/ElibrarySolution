@@ -53,7 +53,7 @@ namespace QuanLyMonHoc.Controllers
         // PUT: api/LopHocs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutLopHoc(string id, LopHoc lopHoc)
+        public async Task<IActionResult> PutLopHoc(string id, [FromForm] LopHoc lopHoc)
         {
             if (id != lopHoc.MaLop)
             {
@@ -84,7 +84,7 @@ namespace QuanLyMonHoc.Controllers
         // POST: api/LopHocs
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<LopHoc>> PostLopHoc(LopHoc lopHoc)
+        public async Task<ActionResult<LopHoc>> PostLopHoc([FromForm] LopHoc lopHoc)
         {
           if (_context.LopHoc == null)
           {

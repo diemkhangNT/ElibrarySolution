@@ -59,31 +59,34 @@ namespace QuanLyMonHoc.Controllers
         // PUT: api/MonHocs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMonHoc(string id, MonHoc monHoc)
+        public async Task<IActionResult> PutMonHoc(string id, [FromForm] MonHocDto monHocDto)
         {
+            MonHoc monHoc = _mapper.Map<MonHoc>(monHocDto);
             if (id != monHoc.MaMH)
             {
                 return BadRequest();
             }
-
-            _context.Entry(monHoc).State = EntityState.Modified;
-
-            try
+            if (_extension.IsExistNameMonHoc_Put(monHoc))
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MonHocExists(id))
+                monHoc.NgayGuiPheDuyet = DateTime.Now;  
+                _context.Entry(monHoc).State = EntityState.Modified;
+                try
                 {
-                    return NotFound();
+                    await _context.SaveChangesAsync();
                 }
-                else
+                catch (DbUpdateConcurrencyException)
                 {
-                    throw;
+                    if (!MonHocExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
-
+            else return BadRequest("Tên môn học này đã tồn tại!");
             return NoContent();
         }
 

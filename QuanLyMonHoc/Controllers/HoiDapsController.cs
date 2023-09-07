@@ -53,7 +53,7 @@ namespace QuanLyMonHoc.Controllers
         // PUT: api/HoiDaps/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutHoiDap(string id, HoiDap hoiDap)
+        public async Task<IActionResult> PutHoiDap(string id, [FromForm] HoiDap hoiDap)
         {
             if (id != hoiDap.MaCauHoi)
             {
@@ -84,7 +84,7 @@ namespace QuanLyMonHoc.Controllers
         // POST: api/HoiDaps
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<HoiDap>> PostHoiDap(HoiDap hoiDap)
+        public async Task<ActionResult<HoiDap>> PostHoiDap([FromForm] HoiDap hoiDap)
         {
           if (_context.HoiDap == null)
           {

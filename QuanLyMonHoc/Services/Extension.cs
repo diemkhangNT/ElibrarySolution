@@ -27,15 +27,19 @@ namespace QuanLyMonHoc.Services
             string num = rnd.Next(1000, 10000000).ToString();
             monHoc.MaMH = "#DLK" + num;
             monHoc.NgayGuiPheDuyet = DateTime.Now;
-            if(monHoc.TinhTrang == null)
-            {
-                monHoc.TinhTrang = false;
-            }
         }
 
         public void AutoPK_NienKhoa(NienKhoa nienKhoa)
         {
-            throw new NotImplementedException();
+            List<NienKhoa> nk = _dbContext.NienKhoa.ToList();
+            if (nk.Count != 0)
+            {
+                string mank = nk[nk.Count - 1].MaNK;
+                string a = mank.Substring(4);
+                int b = Int32.Parse(a);
+                nienKhoa.MaNK = "#NK0" + (b + 1);
+            }
+            else nienKhoa.MaNK = "#NK01";
         }
 
         public void AutoPK_TraLoi(TraLoi traLoi)
@@ -45,9 +49,37 @@ namespace QuanLyMonHoc.Services
 
         public bool IsCheckTime(int tgBD, int tgKT)
         {
-            throw new NotImplementedException();
+            bool flag = _dbContext.NienKhoa.Any(s => s.TGBatDau == tgBD || s.TGKetThuc == tgKT);
+            if (!flag)
+            {
+                if (tgBD < 0 || tgKT < 0 || tgBD >= tgKT)
+                    return false;
+                else
+                {
+                    if (tgBD / 1000 != 2 || tgKT / 1000 != 2)
+                        return false;
+                    else return true;
+                }
+            }
+            else return false;
         }
 
+        public bool IsCheckTime_put(int tgBD, int tgKT, string maNK)
+        {
+            bool flag = _dbContext.NienKhoa.Any(s => (s.TGBatDau == tgBD && s.MaNK !=  maNK ) || (s.TGKetThuc == tgKT && s.MaNK != maNK));
+            if (!flag)
+            {
+                if (tgBD < 0 || tgKT < 0 || tgBD >= tgKT)
+                    return false;
+                else
+                {
+                    if (tgBD / 1000 != 2 || tgKT / 1000 != 2)
+                        return false;
+                    else return true;
+                }
+            }
+            else return false;
+        }
         public bool IsExistNameMonHoc_Post(string tenMH)
         {
             return _dbContext.MonHocs.Any(u => u.TenMH == tenMH);
@@ -66,6 +98,7 @@ namespace QuanLyMonHoc.Services
             {
                 return false;
             }
+            _dbContext.MonHocs.Remove(existing);
             return true;
         }
     }

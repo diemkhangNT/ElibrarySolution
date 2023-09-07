@@ -53,7 +53,7 @@ namespace QuanLyMonHoc.Controllers
         // PUT: api/TraLois/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTraLoi(string id, TraLoi traLoi)
+        public async Task<IActionResult> PutTraLoi(string id, [FromForm] TraLoi traLoi)
         {
             if (id != traLoi.MaCauTL)
             {
@@ -84,7 +84,7 @@ namespace QuanLyMonHoc.Controllers
         // POST: api/TraLois
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TraLoi>> PostTraLoi(TraLoi traLoi)
+        public async Task<ActionResult<TraLoi>> PostTraLoi([FromForm] TraLoi traLoi)
         {
           if (_context.TraLoi == null)
           {

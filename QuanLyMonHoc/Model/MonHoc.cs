@@ -21,8 +21,8 @@ namespace QuanLyMonHoc.Model
         public string? MoTa { get; set; }
         public string? MaGV { get; set; }
 
-        public virtual IEnumerable<LopHoc> LopHocs { get; set;}
-        public virtual IEnumerable<HoiDap> HoiDaps { get; set;}
+        public virtual IEnumerable<LopHoc>? LopHocs { get; set;}
+        public virtual IEnumerable<HoiDap>? HoiDaps { get; set;}
 
     }
 }

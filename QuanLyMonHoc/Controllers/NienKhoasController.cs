@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyMonHoc.Data;
 using QuanLyMonHoc.Model;
+using QuanLyMonHoc.Services;
 
 namespace QuanLyMonHoc.Controllers
 {
@@ -15,10 +17,12 @@ namespace QuanLyMonHoc.Controllers
     public class NienKhoasController : ControllerBase
     {
         private readonly MonHocDbContext _context;
+        private readonly IExtension _extension;
 
-        public NienKhoasController(MonHocDbContext context)
+        public NienKhoasController(MonHocDbContext context, IExtension extension)
         {
             _context = context;
+            _extension = extension;
         }
 
         // GET: api/NienKhoas
@@ -53,59 +57,70 @@ namespace QuanLyMonHoc.Controllers
         // PUT: api/NienKhoas/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutNienKhoa(string id, NienKhoa nienKhoa)
+        public async Task<IActionResult> PutNienKhoa(string id, [FromForm] NienKhoa nienKhoa)
         {
             if (id != nienKhoa.MaNK)
             {
                 return BadRequest();
             }
-
-            _context.Entry(nienKhoa).State = EntityState.Modified;
-
-            try
+            if(_extension.IsCheckTime_put(nienKhoa.TGBatDau, nienKhoa.TGKetThuc, nienKhoa.MaNK))
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!NienKhoaExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                _context.Entry(nienKhoa).State = EntityState.Modified;
 
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!NienKhoaExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+            else
+            {
+                return BadRequest("Thời gian không hợp lệ! ");
+            }
             return NoContent();
         }
 
         // POST: api/NienKhoas
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<NienKhoa>> PostNienKhoa(NienKhoa nienKhoa)
+        public async Task<ActionResult<NienKhoa>> PostNienKhoa([FromForm] NienKhoa nienKhoa)
         {
           if (_context.NienKhoa == null)
           {
               return Problem("Entity set 'MonHocDbContext.NienKhoa'  is null.");
           }
-            _context.NienKhoa.Add(nienKhoa);
-            try
+          if(_extension.IsCheckTime(nienKhoa.TGBatDau, nienKhoa.TGKetThuc))
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (NienKhoaExists(nienKhoa.MaNK))
+                _extension.AutoPK_NienKhoa(nienKhoa);
+                _context.NienKhoa.Add(nienKhoa);
+                try
                 {
-                    return Conflict();
+                    await _context.SaveChangesAsync();
                 }
-                else
+                catch (DbUpdateException)
                 {
-                    throw;
+                    if (NienKhoaExists(nienKhoa.MaNK))
+                    {
+                        return Conflict();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
+          else return BadRequest("Thời gian không hợp lệ! ");
+
 
             return CreatedAtAction("GetNienKhoa", new { id = nienKhoa.MaNK }, nienKhoa);
         }
