@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyMonHoc.Data;
+using QuanLyMonHoc.Dto;
 using QuanLyMonHoc.Model;
+using QuanLyMonHoc.Services;
 
 namespace QuanLyMonHoc.Controllers
 {
@@ -15,10 +18,14 @@ namespace QuanLyMonHoc.Controllers
     public class TraLoisController : ControllerBase
     {
         private readonly MonHocDbContext _context;
+        private readonly IExtension _extension;
+        private readonly IMapper _mapper;
 
-        public TraLoisController(MonHocDbContext context)
+        public TraLoisController(MonHocDbContext context, IExtension extension, IMapper mapper)
         {
             _context = context;
+            _extension = extension;
+            _mapper = mapper;
         }
 
         // GET: api/TraLois
@@ -53,13 +60,14 @@ namespace QuanLyMonHoc.Controllers
         // PUT: api/TraLois/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTraLoi(string id, [FromForm] TraLoi traLoi)
+        public async Task<IActionResult> PutTraLoi(string id, [FromForm] TraLoiDto traLoiDto)
         {
+            TraLoi traLoi = _mapper.Map<TraLoi>(traLoiDto);
             if (id != traLoi.MaCauTL)
             {
                 return BadRequest();
             }
-
+            traLoi.ThoiGian = DateTime.Now;
             _context.Entry(traLoi).State = EntityState.Modified;
 
             try
@@ -84,12 +92,14 @@ namespace QuanLyMonHoc.Controllers
         // POST: api/TraLois
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TraLoi>> PostTraLoi([FromForm] TraLoi traLoi)
+        public async Task<ActionResult<TraLoi>> PostTraLoi([FromForm] TraLoiDto traLoiDto)
         {
-          if (_context.TraLoi == null)
+            TraLoi traLoi = _mapper.Map<TraLoi>(traLoiDto);
+            if (_context.TraLoi == null)
           {
               return Problem("Entity set 'MonHocDbContext.TraLoi'  is null.");
           }
+            _extension.AutoPK_TraLoi(traLoi);
             _context.TraLoi.Add(traLoi);
             try
             {

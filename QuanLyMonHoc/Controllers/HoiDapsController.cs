@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyMonHoc.Data;
+using QuanLyMonHoc.Dto;
 using QuanLyMonHoc.Model;
+using QuanLyMonHoc.Services;
 
 namespace QuanLyMonHoc.Controllers
 {
@@ -15,10 +18,15 @@ namespace QuanLyMonHoc.Controllers
     public class HoiDapsController : ControllerBase
     {
         private readonly MonHocDbContext _context;
+        private readonly IExtension _extension;
+        private readonly IMapper _mapper;
 
-        public HoiDapsController(MonHocDbContext context)
+
+        public HoiDapsController(MonHocDbContext context, IExtension extension, IMapper mapper)
         {
             _context = context;
+            _extension = extension;
+            _mapper = mapper;
         }
 
         // GET: api/HoiDaps
@@ -53,13 +61,14 @@ namespace QuanLyMonHoc.Controllers
         // PUT: api/HoiDaps/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutHoiDap(string id, [FromForm] HoiDap hoiDap)
+        public async Task<IActionResult> PutHoiDap(string id, [FromForm] HoiDapDto hoiDapDto)
         {
+            HoiDap hoiDap = _mapper.Map<HoiDap>(hoiDapDto);
             if (id != hoiDap.MaCauHoi)
             {
                 return BadRequest();
             }
-
+            hoiDap.ThoiGian = DateTime.Now;
             _context.Entry(hoiDap).State = EntityState.Modified;
 
             try
@@ -84,12 +93,14 @@ namespace QuanLyMonHoc.Controllers
         // POST: api/HoiDaps
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<HoiDap>> PostHoiDap([FromForm] HoiDap hoiDap)
+        public async Task<ActionResult<HoiDap>> PostHoiDap([FromForm] HoiDapDto hoiDapDto)
         {
-          if (_context.HoiDap == null)
+            HoiDap hoiDap = _mapper.Map<HoiDap>(hoiDapDto);
+            if (_context.HoiDap == null)
           {
               return Problem("Entity set 'MonHocDbContext.HoiDap'  is null.");
           }
+            _extension.AutoPK_HoiDap(hoiDap);
             _context.HoiDap.Add(hoiDap);
             try
             {
@@ -103,7 +114,7 @@ namespace QuanLyMonHoc.Controllers
                 }
                 else
                 {
-                    throw;
+                    return BadRequest("Số ký tự vượt quá số lượng cho phép! (Tiêu đề < 100 ký tự & Nội dung < 500 ký tự");
                 }
             }
 

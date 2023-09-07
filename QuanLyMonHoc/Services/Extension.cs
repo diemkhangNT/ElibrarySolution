@@ -13,12 +13,19 @@ namespace QuanLyMonHoc.Services
         }
         public void AutoPK_HoiDap(HoiDap hoiDap)
         {
-            throw new NotImplementedException();
+            Random rnd = new Random();
+            string num = rnd.Next(1000, 10000000).ToString();
+            hoiDap.MaCauHoi = "#CH" + num;
+            hoiDap.ThoiGian = DateTime.Now;
         }
 
         public void AutoPK_LopHoc(LopHoc lopHoc)
         {
-            throw new NotImplementedException();
+            Random rnd = new Random();
+            string num = rnd.Next(1000, 10000000).ToString();
+            lopHoc.MaLop = "#LP" + num;
+            if(lopHoc.SiSo == null)
+                lopHoc.SiSo = 0;
         }
 
         public void AutoPK_MonHoc(MonHoc monHoc)
@@ -44,7 +51,10 @@ namespace QuanLyMonHoc.Services
 
         public void AutoPK_TraLoi(TraLoi traLoi)
         {
-            throw new NotImplementedException();
+            Random rnd = new Random();
+            string num = rnd.Next(1000, 10000000).ToString();
+            traLoi.MaCauTL = "#TL" + num;
+            traLoi.ThoiGian = DateTime.Now;
         }
 
         public bool IsCheckTime(int tgBD, int tgKT)
@@ -91,7 +101,7 @@ namespace QuanLyMonHoc.Services
 
             if (existing == null)
             {
-                return false;
+                return true;
             }
 
             if (existing.MaMH != monHoc.MaMH && _dbContext.MonHocs.Any(x => x.TenMH == monHoc.TenMH))

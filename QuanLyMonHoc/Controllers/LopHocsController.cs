@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyMonHoc.Data;
+using QuanLyMonHoc.Dto;
 using QuanLyMonHoc.Model;
+using QuanLyMonHoc.Services;
 
 namespace QuanLyMonHoc.Controllers
 {
@@ -15,10 +18,14 @@ namespace QuanLyMonHoc.Controllers
     public class LopHocsController : ControllerBase
     {
         private readonly MonHocDbContext _context;
+        private readonly IExtension _extension;
+        private readonly IMapper _mapper;
 
-        public LopHocsController(MonHocDbContext context)
+        public LopHocsController(MonHocDbContext context, IExtension extension, IMapper mapper)
         {
             _context = context;
+            _extension = extension;
+            _mapper = mapper;
         }
 
         // GET: api/LopHocs
@@ -53,8 +60,9 @@ namespace QuanLyMonHoc.Controllers
         // PUT: api/LopHocs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutLopHoc(string id, [FromForm] LopHoc lopHoc)
+        public async Task<IActionResult> PutLopHoc(string id, [FromForm] LopHocDto lopHocDto)
         {
+            LopHoc lopHoc = _mapper.Map<LopHoc>(lopHocDto);
             if (id != lopHoc.MaLop)
             {
                 return BadRequest();
@@ -84,12 +92,14 @@ namespace QuanLyMonHoc.Controllers
         // POST: api/LopHocs
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<LopHoc>> PostLopHoc([FromForm] LopHoc lopHoc)
+        public async Task<ActionResult<LopHoc>> PostLopHoc([FromForm] LopHocDto lopHocDto)
         {
+            LopHoc lopHoc = _mapper.Map<LopHoc>(lopHocDto);
           if (_context.LopHoc == null)
           {
               return Problem("Entity set 'MonHocDbContext.LopHoc'  is null.");
           }
+            _extension.AutoPK_LopHoc(lopHoc);
             _context.LopHoc.Add(lopHoc);
             try
             {

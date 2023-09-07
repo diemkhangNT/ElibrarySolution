@@ -9,10 +9,6 @@ namespace QuanLyMonHoc.Dto
         [Required]
         public string TenMH { get; set; }
 
-        [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
-        public DateTime? NgayGuiPheDuyet { get; set; }
-
         public bool? TinhTrang { get; set; }
 
         public string? MoTa { get; set; }

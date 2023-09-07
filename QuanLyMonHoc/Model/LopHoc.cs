@@ -12,7 +12,7 @@ namespace QuanLyMonHoc.Model
         [MaxLength(200)]
         public string TenLop { get; set; }
 
-        public int SiSo { get; set; } = 0;
+        public int SiSo { get; set; }
         [MaxLength(200)]
         public string? GhiChu { get; set; }
         public string MaMH { get; set; }
