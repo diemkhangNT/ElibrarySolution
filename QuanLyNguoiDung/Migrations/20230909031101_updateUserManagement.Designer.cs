@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuanLyNguoiDung.Data;
 
@@ -11,9 +12,10 @@ using QuanLyNguoiDung.Data;
 namespace QuanLyNguoiDung.Migrations
 {
     [DbContext(typeof(UserDBContext))]
-    partial class UserDBContextModelSnapshot : ModelSnapshot
+    [Migration("20230909031101_updateUserManagement")]
+    partial class updateUserManagement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,13 +30,14 @@ namespace QuanLyNguoiDung.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("DiaChi")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("GioiTinh")
+                    b.Property<bool>("GioiTinh")
                         .HasColumnType("bit");
 
                     b.Property<string>("HinhDaiDien")
@@ -43,7 +46,7 @@ namespace QuanLyNguoiDung.Migrations
                     b.Property<DateTime?>("NgayHopTac")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("NgaySinh")
+                    b.Property<DateTime>("NgaySinh")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Password")
@@ -88,10 +91,10 @@ namespace QuanLyNguoiDung.Migrations
                     b.Property<string>("MaLop")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("NgaySinh")
+                    b.Property<DateTime>("NgaySinh")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("NgayTao")
+                    b.Property<DateTime>("NgayTao")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Password")

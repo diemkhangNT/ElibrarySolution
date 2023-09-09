@@ -23,7 +23,7 @@ namespace QuanLyNguoiDung.Model
         
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
-        public DateTime NgaySinh { get; set; }
+        public DateTime? NgaySinh { get; set; }
 
         [StringLength(10)]
         public string SDTLienLac { get; set; }
@@ -31,7 +31,7 @@ namespace QuanLyNguoiDung.Model
         public string? AnhDaiDien { get; set; }
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
-        public DateTime NgayTao { get; set; }
+        public DateTime? NgayTao { get; set; }
         public string? MaLop { get ; set; }
     }
 }

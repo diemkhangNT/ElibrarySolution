@@ -21,13 +21,13 @@ builder.Services.AddScoped<IExtensionServices, ExtensionServices>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+//Automapper
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 var app = builder.Build();
 
 #region
 
-//Automapper
-//builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
 
 
 

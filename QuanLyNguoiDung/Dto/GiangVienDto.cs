@@ -4,7 +4,7 @@ namespace QuanLyNguoiDung.Dto
 {
     public class GiangVienDto
     {
-        public string MaGV { get; set; }
+        public string? MaGV { get; set; }
 
         [StringLength(50)]
         public string TenGV { get; set; }
@@ -20,20 +20,14 @@ namespace QuanLyNguoiDung.Dto
         [StringLength(10)]
         public string SDTLienLac { get; set; }
 
-        public string DiaChi { get; set; }
+        public string? DiaChi { get; set; }
 
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
-        public DateTime NgaySinh { get; set; }
+        public DateTime? NgaySinh { get; set; }
 
-        public bool GioiTinh { get; set; } = true;
+        public bool? GioiTinh { get; set; } = true;
 
-        public string? HinhDaiDien { get; set; }
-
-        [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
-        public DateTime NgayHopTac { get; set; }
-
-        public bool TrangThaiHD { get; set; } = true;
+        public bool? TrangThaiHD { get; set; } = true;
     }
 }
