@@ -18,7 +18,5 @@ namespace QuanLyThong_Bao.Model
         public string MaLTB { get; set; }
         [ForeignKey("MaLTB")]
         public virtual LoaiThongBao LoaiThongBao { get; set; }
-
-        
     }
 }

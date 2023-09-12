@@ -9,6 +9,8 @@ namespace QuanLyThong_Bao.Mapper
         public MapperProfile()
         {
             CreateMap<ThongBaoDto, ThongBao>();
+            CreateMap<LoaiTBDto, LoaiThongBao>();
+            CreateMap<GuiThongBaoDto, GuiThongBao>();
         }
     }
 }

@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuanLyThong_Bao.Data;
+using QuanLyThong_Bao.Interfaces;
 using QuanLyThong_Bao.Services;
+using System.Security.Cryptography;
+using System.Security.Cryptography.Xml;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +23,10 @@ builder.Services.AddDbContext<ThongBaoDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Elibrary4"));
 });
 // Đăng ký interface I... và thực hiện các chức năng của nó trong file ...
-builder.Services.AddScoped<IExtentionSV, ExtentionSV>();
+builder.Services.AddScoped<IExtentionService, ExtentionService>();
+builder.Services.AddScoped<ICrudAnnounce, CrudAnnounce>();
+builder.Services.AddScoped<ICrudTypeAnnounce, CrudTypeAnnounce>();
+builder.Services.AddScoped<ICrudSendAnnounce, CrudSendAnnounce>();
 //Automapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 var app = builder.Build();

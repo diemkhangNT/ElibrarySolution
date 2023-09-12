@@ -4,7 +4,6 @@ namespace QuanLyThong_Bao.Dto
 {
     public class ThongBaoDto
     {
-        public string? MaTB { get; set; }
         [MinLength(5), MaxLength(200)]
         public string TieuDe { get; set; }
         [MinLength(20)]

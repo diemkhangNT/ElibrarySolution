@@ -6,8 +6,10 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Packaging.Signing;
 using QuanLyThong_Bao.Data;
 using QuanLyThong_Bao.Dto;
+using QuanLyThong_Bao.Interfaces;
 using QuanLyThong_Bao.Model;
 using QuanLyThong_Bao.Services;
 
@@ -19,73 +21,57 @@ namespace QuanLyThong_Bao.Controllers
     {
         private readonly ThongBaoDbContext _context;
         private readonly IMapper _mapper;
-        private readonly IExtentionSV _extentionSV;
+        private readonly IExtentionService _extentionSV;
+        private readonly ICrudAnnounce _crudService;
 
-        public ThongBaosController(ThongBaoDbContext context, IExtentionSV extentionSV, IMapper mapper)
+        public ThongBaosController(ThongBaoDbContext context, IExtentionService extentionSV, IMapper mapper, ICrudAnnounce crudService)
         {
             _context = context;
             _extentionSV = extentionSV;
             _mapper = mapper;
+            _crudService = crudService;
         }
 
         // GET: api/ThongBaos
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ThongBao>>> GetthongBaos()
         {
-          if (_context.thongBaos == null)
-          {
-              return NotFound();
-          }
-            return await _context.thongBaos.ToListAsync();
+            if (_context.thongBaos == null)
+            {
+                return NotFound();
+            }
+            var listLTB = await _crudService.Get_ThongBaos();
+            return listLTB.ToList();
         }
 
         // GET: api/ThongBaos/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ThongBao>> GetThongBao(string id)
         {
-          if (_context.thongBaos == null)
-          {
-              return NotFound();
-          }
-            var thongBao = await _context.thongBaos.FindAsync(id);
-
+            ThongBao thongBao = await _crudService.Get_ThongBao(id);
             if (thongBao == null)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy thông báo có id = " + id + "!");
             }
-
-            return thongBao;
+            else return thongBao;
         }
 
         // PUT: api/ThongBaos/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutThongBao(string id, ThongBao thongBao)
+        public async Task<IActionResult> PutThongBao(string id,[FromForm] ThongBaoDto thongBaoDto)
         {
-            if (id != thongBao.MaTB)
+            ThongBao thongBao = _mapper.Map<ThongBao>(thongBaoDto);
+            if (!_extentionSV.ThongBaoExists(id))
             {
-                return BadRequest();
+                return BadRequest($"Không tồn tại mã {id} trong database!");
             }
-
-            _context.Entry(thongBao).State = EntityState.Modified;
-
-            try
+            else
             {
-                await _context.SaveChangesAsync();
+                thongBao.MaTB = id;
+                await _crudService.Put_ThongBao(thongBao);
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ThongBaoExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return Ok("Nội dung đã được cập nhật!");
         }
 
         // POST: api/ThongBaos
@@ -99,14 +85,13 @@ namespace QuanLyThong_Bao.Controllers
               return Problem("Entity set 'ThongBaoDbContext.thongBaos'  is null.");
           }
             _extentionSV.AutoPK_ThongBao(thongBao);
-            _context.thongBaos.Add(thongBao);
             try
             {
-                await _context.SaveChangesAsync();
+                await _crudService.Post_ThongBao(thongBao);
             }
             catch (DbUpdateException)
             {
-                if (ThongBaoExists(thongBao.MaTB))
+                if (_extentionSV.ThongBaoExists(thongBao.MaTB))
                 {
                     return Conflict();
                 }
@@ -123,25 +108,13 @@ namespace QuanLyThong_Bao.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteThongBao(string id)
         {
-            if (_context.thongBaos == null)
+            bool flag = await _crudService.Delete_ThongBao(id);
+            if (!flag)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy!");
             }
-            var thongBao = await _context.thongBaos.FindAsync(id);
-            if (thongBao == null)
-            {
-                return NotFound();
-            }
-
-            _context.thongBaos.Remove(thongBao);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            else return Ok("Đã xóa thành công!");
         }
 
-        private bool ThongBaoExists(string id)
-        {
-            return (_context.thongBaos?.Any(e => e.MaTB == id)).GetValueOrDefault();
-        }
     }
 }

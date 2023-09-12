@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuanLyThong_Bao.Data;
 
@@ -11,9 +12,10 @@ using QuanLyThong_Bao.Data;
 namespace QuanLyThong_Bao.Migrations
 {
     [DbContext(typeof(ThongBaoDbContext))]
-    partial class ThongBaoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230912050803_UpdateAnnounce")]
+    partial class UpdateAnnounce
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
