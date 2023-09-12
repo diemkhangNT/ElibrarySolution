@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuanLyVaiTro.Data;
+using QuanLyVaiTro.Interface;
 using QuanLyVaiTro.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +25,8 @@ builder.Services.AddDbContext<VaiTroDbContext>(options =>
 });
 
 // Đăng ký interface I... và thực hiện các chức năng của nó trong file ...
-builder.Services.AddScoped<ICrudService, CrudService>();
+builder.Services.AddScoped<ICrudPhanQuyenService, CrudPhanQuyen>();
+builder.Services.AddScoped<ICrudVaiTroService, CrudVaiTro>();
 
 #endregion
 

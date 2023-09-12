@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyVaiTro.Data;
 using QuanLyVaiTro.Dto;
+using QuanLyVaiTro.Interface;
 using QuanLyVaiTro.Model;
-using QuanLyVaiTro.Services;
 
 namespace QuanLyVaiTro.Controllers
 {
@@ -18,10 +18,10 @@ namespace QuanLyVaiTro.Controllers
     public class VaiTroesController : ControllerBase
     {
         private readonly VaiTroDbContext _context;
-        private readonly ICrudService _icrudService;
+        private readonly ICrudVaiTroService _icrudService;
         private readonly IMapper _mapper;
 
-        public VaiTroesController(VaiTroDbContext context, IMapper mapper, ICrudService icrudService)
+        public VaiTroesController(VaiTroDbContext context, IMapper mapper, ICrudVaiTroService icrudService)
         {
             _context = context;
             _mapper = mapper;
@@ -32,12 +32,12 @@ namespace QuanLyVaiTro.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<VaiTro>>> GetVaiTros()
         {
-          List<VaiTro> vaiTros = (List<VaiTro>)await _icrudService.Get_VaiTros();
-          if (vaiTros == null)
+          if (_context.VaiTros == null)
           {
               return NotFound("Không tìm thấy dữ liệu!");
           }
-          return Ok(vaiTros.Select(vt => _mapper.Map<VaiTroDto>(vt)));
+            List<VaiTro> vaiTros = (List<VaiTro>)await _icrudService.Get_VaiTros();
+            return Ok(vaiTros);
         }
 
         // GET: api/VaiTroes/5
@@ -57,31 +57,17 @@ namespace QuanLyVaiTro.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutVaiTro(string id,[FromForm] VaiTroDto vaiTroVM)
         {
-            if (id != vaiTroVM.MaVT)
+            VaiTro vaiTro = _mapper.Map<VaiTro>(vaiTroVM);
+            if (!_icrudService.VaiTroExists(id))
             {
-                return BadRequest("Không tìm thấy dữ liệu!"); 
+                return BadRequest($"Không tồn tại mã {id} trong database!");
             }
-            VaiTro vt = await _icrudService.Get_VaiTro(id);
-            _icrudService.Put_VaiTro(vt);
-            _mapper.Map(vaiTroVM, vt);
-            _context.Entry(vt).State = EntityState.Modified;
-            try
+            else
             {
-                await _context.SaveChangesAsync();
+                vaiTro.MaVT = id;
+                await _icrudService.Put_VaiTro(vaiTro);
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_icrudService.VaiTroExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetVaiTro", new { id = vt.MaVT }, vt); 
+            return Ok("Nội dung đã được cập nhật!");
         }
 
         // POST: api/VaiTroes
@@ -89,15 +75,18 @@ namespace QuanLyVaiTro.Controllers
         [HttpPost]
         public async Task<ActionResult<VaiTro>> PostVaiTro([FromForm] VaiTroDto vaiTroVM)
         {
-            var vt = _mapper.Map<VaiTro>(vaiTroVM);
-            _icrudService.Post_VaiTro(vt);
+            VaiTro vaiTro = _mapper.Map<VaiTro>(vaiTroVM);
+            if (_context.VaiTros == null)
+            {
+                return Problem("Entity set 'ThongBaoDbContext.thongBaos'  is null.");
+            }
             try
             {
-                await _context.SaveChangesAsync();
+                await _icrudService.Post_VaiTro(vaiTro);
             }
             catch (DbUpdateException)
             {
-                if (_icrudService.VaiTroExists(vt.MaVT))
+                if (_icrudService.VaiTroExists(vaiTro.MaVT))
                 {
                     return Conflict();
                 }
@@ -106,24 +95,19 @@ namespace QuanLyVaiTro.Controllers
                     throw;
                 }
             }
-            return CreatedAtAction("GetVaiTro", new { id = vt.MaVT }, vt);
+            return CreatedAtAction("GetVaiTro", new { id = vaiTro.MaVT }, vaiTro);
         }
 
         // DELETE: api/VaiTroes/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVaiTro(string id)
         {
-            var vaiTro = await _icrudService.Get_VaiTro(id);
-            if (vaiTro == null)
+            bool flag = await _icrudService.Delete_VaiTro(id);
+            if (!flag)
             {
-                return NotFound("Không tìm thấy dữ liệu");
+                return NotFound("Không tìm thấy!");
             }
-            _context.VaiTros.Remove(vaiTro);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            else return Ok("Đã xóa thành công!");
         }
-
-        
     }
 }

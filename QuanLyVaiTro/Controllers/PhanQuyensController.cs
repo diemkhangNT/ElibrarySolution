@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using QuanLyVaiTro.Data;
 using QuanLyVaiTro.Dto;
+using QuanLyVaiTro.Interface;
 using QuanLyVaiTro.Model;
 using QuanLyVaiTro.Services;
 
@@ -20,9 +21,9 @@ namespace QuanLyVaiTro.Controllers
     public class PhanQuyensController : ControllerBase
     {
         private readonly VaiTroDbContext _context;
-        private readonly ICrudService _icrudService;
+        private readonly ICrudPhanQuyenService _icrudService;
         private readonly IMapper _mapper;
-        public PhanQuyensController(VaiTroDbContext context, ICrudService icrudService, IMapper mapper)
+        public PhanQuyensController(VaiTroDbContext context, ICrudPhanQuyenService icrudService, IMapper mapper)
         {
             _context = context;
             _icrudService = icrudService;
@@ -33,12 +34,12 @@ namespace QuanLyVaiTro.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PhanQuyen>>> GetPhanQuyens()
         {
-            List<PhanQuyen> phanQuyens = (List<PhanQuyen>)await _icrudService.Get_PhanQuyens();
-            if (phanQuyens == null)
+            if (_context.PhanQuyens == null)
             {
                 return NotFound("Không tìm thấy dữ liệu!");
             }
-            return Ok(phanQuyens.Select(pq => _mapper.Map<PhanQuyenDto>(pq)));
+            var phanQuyens = await _icrudService.Get_PhanQuyens();
+            return Ok(phanQuyens.ToList());
         }
 
         // GET: api/PhanQuyens/5
@@ -58,30 +59,17 @@ namespace QuanLyVaiTro.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPhanQuyen(string id, [FromForm] PhanQuyenDto phanQuyenVM)
         {
-            if (id != phanQuyenVM.MaPQ)
+            PhanQuyen phanQuyen = _mapper.Map<PhanQuyen>(phanQuyenVM);
+            if (!_icrudService.PhanQuyenExists(id))
             {
-                return BadRequest("Không tìm thấy dữ liệu!");
+                return BadRequest($"Không tồn tại mã {id} trong database!");
             }
-            PhanQuyen pq = await _icrudService.Get_PhanQuyen(id);
-            _mapper.Map(phanQuyenVM, pq);
-            _context.Entry(pq).State = EntityState.Modified;
-            try
+            else
             {
-                await _context.SaveChangesAsync();
+                phanQuyen.MaPQ = id;
+                await _icrudService.Put_PhanQuyen(phanQuyen);
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_icrudService.PhanQuyenExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetPhanQuyen", new { id = pq.MaPQ }, pq);
+            return Ok("Nội dung đã được cập nhật!");
         }
 
         // POST: api/PhanQuyens
@@ -90,16 +78,19 @@ namespace QuanLyVaiTro.Controllers
         public async Task<ActionResult<PhanQuyen>> PostPhanQuyen([FromForm]PhanQuyenDto phanQuyenVM)
         {
             var pq = _mapper.Map<PhanQuyen>(phanQuyenVM);
-            _icrudService.Post_PhanQuyen(pq);
+            if (_context.PhanQuyens == null)
+            {
+                return Problem("Entity set 'ThongBaoDbContext.thongBaos'  is null.");
+            }
             try
             {
-                await _context.SaveChangesAsync();
+                await _icrudService.Post_PhanQuyen(pq);
             }
             catch (DbUpdateException)
             {
                 if (_icrudService.PhanQuyenExists(pq.MaPQ))
                 {
-                    return Conflict("Khóa chính đã tồn tại!!");
+                    return Conflict();
                 }
                 else
                 {
@@ -113,16 +104,12 @@ namespace QuanLyVaiTro.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePhanQuyen(string id)
         {
-            var phanQuyen = await _icrudService.Get_PhanQuyen(id);
-            if (phanQuyen == null)
+            bool flag = await _icrudService.Delete_PhanQuyen(id);
+            if (!flag)
             {
-                return NotFound("Không tìm thấy dữ liệu!");
+                return NotFound("Không tìm thấy!");
             }
-
-            _context.PhanQuyens.Remove(phanQuyen);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            else return Ok("Đã xóa thành công!");
         }
         
     }

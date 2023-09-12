@@ -4,8 +4,6 @@ namespace QuanLyVaiTro.Dto
 {
     public class PhanQuyenDto
     {
-        public string? MaPQ { get; set; }
-        [Required]
         public string TenChucNang { get; set; }
         public bool Xem { get; set; }
         public bool Xoa { get; set; } 
