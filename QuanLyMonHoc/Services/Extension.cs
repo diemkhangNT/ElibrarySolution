@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuanLyMonHoc.Data;
+using QuanLyMonHoc.Interface;
 using QuanLyMonHoc.Model;
 
 namespace QuanLyMonHoc.Services
@@ -38,7 +39,7 @@ namespace QuanLyMonHoc.Services
 
         public void AutoPK_NienKhoa(NienKhoa nienKhoa)
         {
-            List<NienKhoa> nk = _dbContext.NienKhoa.ToList();
+            List<NienKhoa> nk = _dbContext.NienKhoas.ToList();
             if (nk.Count != 0)
             {
                 string mank = nk[nk.Count - 1].MaNK;
@@ -59,7 +60,7 @@ namespace QuanLyMonHoc.Services
 
         public bool IsCheckTime(int tgBD, int tgKT)
         {
-            bool flag = _dbContext.NienKhoa.Any(s => s.TGBatDau == tgBD || s.TGKetThuc == tgKT);
+            bool flag = _dbContext.NienKhoas.Any(s => s.TGBatDau == tgBD || s.TGKetThuc == tgKT);
             if (!flag)
             {
                 if (tgBD < 0 || tgKT < 0 || tgBD >= tgKT)
@@ -76,7 +77,7 @@ namespace QuanLyMonHoc.Services
 
         public bool IsCheckTime_put(int tgBD, int tgKT, string maNK)
         {
-            bool flag = _dbContext.NienKhoa.Any(s => (s.TGBatDau == tgBD && s.MaNK !=  maNK ) || (s.TGKetThuc == tgKT && s.MaNK != maNK));
+            bool flag = _dbContext.NienKhoas.Any(s => (s.TGBatDau == tgBD && s.MaNK !=  maNK ) || (s.TGKetThuc == tgKT && s.MaNK != maNK));
             if (!flag)
             {
                 if (tgBD < 0 || tgKT < 0 || tgBD >= tgKT)
@@ -110,6 +111,27 @@ namespace QuanLyMonHoc.Services
             }
             _dbContext.MonHocs.Remove(existing);
             return true;
+        }
+
+        public bool HoiDapExists(string id)
+        {
+            return (_dbContext.HoiDaps?.Any(e => e.MaCauHoi == id)).GetValueOrDefault();
+        }
+        public bool LopHocExists(string id)
+        {
+            return (_dbContext.LopHocs?.Any(e => e.MaLop == id)).GetValueOrDefault();
+        }
+        public bool MonHocExists(string id)
+        {
+            return (_dbContext.MonHocs?.Any(e => e.MaMH == id)).GetValueOrDefault();
+        }
+        public bool NienKhoaExists(string id)
+        {
+            return (_dbContext.NienKhoas?.Any(e => e.MaNK == id)).GetValueOrDefault();
+        }
+        public bool TraLoiExists(string id)
+        {
+            return (_dbContext.TraLois?.Any(e => e.MaCauTL == id)).GetValueOrDefault();
         }
     }
 }

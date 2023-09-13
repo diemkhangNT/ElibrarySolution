@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyMonHoc.Data;
 using QuanLyMonHoc.Dto;
+using QuanLyMonHoc.Interface;
 using QuanLyMonHoc.Model;
-using QuanLyMonHoc.Services;
 
 namespace QuanLyMonHoc.Controllers
 {
@@ -19,42 +19,39 @@ namespace QuanLyMonHoc.Controllers
     {
         private readonly MonHocDbContext _context;
         private readonly IExtension _extension;
+        private readonly ICrudLopHoc _crudService;
         private readonly IMapper _mapper;
 
-        public LopHocsController(MonHocDbContext context, IExtension extension, IMapper mapper)
+        public LopHocsController(MonHocDbContext context, IExtension extension, IMapper mapper, ICrudLopHoc crudService)
         {
             _context = context;
             _extension = extension;
             _mapper = mapper;
+            _crudService = crudService;
         }
 
         // GET: api/LopHocs
         [HttpGet]
         public async Task<ActionResult<IEnumerable<LopHoc>>> GetLopHoc()
         {
-          if (_context.LopHoc == null)
-          {
-              return NotFound();
-          }
-            return await _context.LopHoc.ToListAsync();
+            if (_context.LopHocs == null)
+            {
+                return NotFound();
+            }
+            var listLTB = await _crudService.Get_LopHocs();
+            return listLTB.ToList();
         }
 
         // GET: api/LopHocs/5
         [HttpGet("{id}")]
         public async Task<ActionResult<LopHoc>> GetLopHoc(string id)
         {
-          if (_context.LopHoc == null)
-          {
-              return NotFound();
-          }
-            var lopHoc = await _context.LopHoc.FindAsync(id);
-
+            LopHoc lopHoc = await _crudService.Get_LopHoc(id);
             if (lopHoc == null)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy lớp học có id = " + id + "!");
             }
-
-            return lopHoc;
+            else return lopHoc;
         }
 
         // PUT: api/LopHocs/5
@@ -67,16 +64,14 @@ namespace QuanLyMonHoc.Controllers
             {
                 return BadRequest();
             }
-
-            _context.Entry(lopHoc).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                lopHoc.MaLop = id;
+                await _crudService.Put_LopHoc(lopHoc);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!LopHocExists(id))
+                if (!_extension.LopHocExists(id))
                 {
                     return NotFound();
                 }
@@ -95,19 +90,18 @@ namespace QuanLyMonHoc.Controllers
         public async Task<ActionResult<LopHoc>> PostLopHoc([FromForm] LopHocDto lopHocDto)
         {
             LopHoc lopHoc = _mapper.Map<LopHoc>(lopHocDto);
-          if (_context.LopHoc == null)
+          if (_context.LopHocs == null)
           {
               return Problem("Entity set 'MonHocDbContext.LopHoc'  is null.");
           }
-            _extension.AutoPK_LopHoc(lopHoc);
-            _context.LopHoc.Add(lopHoc);
             try
             {
-                await _context.SaveChangesAsync();
+                _extension.AutoPK_LopHoc(lopHoc);
+                await _crudService.Post_LopHoc(lopHoc);
             }
             catch (DbUpdateException)
             {
-                if (LopHocExists(lopHoc.MaLop))
+                if ( _extension.LopHocExists(lopHoc.MaLop))
                 {
                     return Conflict();
                 }
@@ -124,25 +118,12 @@ namespace QuanLyMonHoc.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteLopHoc(string id)
         {
-            if (_context.LopHoc == null)
+            bool flag = await _crudService.Delete_LopHoc(id);
+            if (!flag)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy!");
             }
-            var lopHoc = await _context.LopHoc.FindAsync(id);
-            if (lopHoc == null)
-            {
-                return NotFound();
-            }
-
-            _context.LopHoc.Remove(lopHoc);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool LopHocExists(string id)
-        {
-            return (_context.LopHoc?.Any(e => e.MaLop == id)).GetValueOrDefault();
+            else return Ok("Đã xóa thành công!");
         }
     }
 }

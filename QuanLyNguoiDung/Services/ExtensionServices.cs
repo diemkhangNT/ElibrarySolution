@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using QuanLyNguoiDung.Data;
+using QuanLyNguoiDung.Interface;
 using QuanLyNguoiDung.Model;
 using System.Text.RegularExpressions;
 
@@ -118,9 +119,19 @@ namespace QuanLyNguoiDung.Services
             }
         }
 
-        public FileStream GetImageById(string id)
+        public bool GetImageById(string id)
         {
             throw new NotImplementedException();
+        }
+
+        public bool HocVienExists(string id)
+        {
+            return (_dbContext.HocViens?.Any(e => e.MaHV == id)).GetValueOrDefault();
+        }
+
+        public bool GiangVienExists(string id)
+        {
+            return (_dbContext.GiangViens?.Any(e => e.MaGV == id)).GetValueOrDefault();
         }
     }
 }

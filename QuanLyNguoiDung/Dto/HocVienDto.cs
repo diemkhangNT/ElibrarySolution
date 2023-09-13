@@ -4,8 +4,6 @@ namespace QuanLyNguoiDung.Dto
 {
     public class HocVienDto
     {
-        public string? MaHV { get; set; }
-
         public string TenHV { get; set; }
 
         [EmailAddress]

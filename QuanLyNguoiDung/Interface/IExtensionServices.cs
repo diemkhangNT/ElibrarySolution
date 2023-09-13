@@ -1,6 +1,7 @@
-﻿using QuanLyNguoiDung.Model;
+﻿using Microsoft.EntityFrameworkCore;
+using QuanLyNguoiDung.Model;
 
-namespace QuanLyNguoiDung.Services
+namespace QuanLyNguoiDung.Interface
 {
     public interface IExtensionServices
     {
@@ -12,9 +13,11 @@ namespace QuanLyNguoiDung.Services
         bool IsNumberPhone(string sdt);
         bool IsUserNameGVUnique(string username);
         bool IsUserNameHVUnique(string username);
+        bool HocVienExists(string id);
+        bool GiangVienExists(string id);
         //image
-        public void UploadImageGV(GiangVien giangVien ,IFormFile imageFile);
-        public void UploadImageHV(HocVien hocVien ,IFormFile imageFile);
-        public FileStream GetImageById(string id);
+        public void UploadImageGV(GiangVien giangVien, IFormFile imageFile);
+        public void UploadImageHV(HocVien hocVien, IFormFile imageFile);
+        public bool GetImageById(string fileName);
     }
 }

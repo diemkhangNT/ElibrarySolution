@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuanLyNguoiDung.Data;
+using QuanLyNguoiDung.Interface;
 using QuanLyNguoiDung.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +18,8 @@ builder.Services.AddDbContext<UserDBContext>(options =>
 });
 // Đăng ký interface I... và thực hiện các chức năng của nó trong file ...
 builder.Services.AddScoped<IExtensionServices, ExtensionServices>();
+builder.Services.AddScoped<ICrudGVService, CrudGVService>();
+builder.Services.AddScoped<ICrudHVService, CrudHVService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -25,15 +28,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 var app = builder.Build();
 
-#region
-
-
-
-
-
-
-
-#endregion
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

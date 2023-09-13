@@ -7,7 +7,7 @@ namespace QuanLyNguoiDung.Model
     public class GiangVien
     {
         [Key]
-        public string? MaGV { get; set; }
+        public string MaGV { get; set; }
 
         [StringLength(50)]
         public string TenGV { get; set; }

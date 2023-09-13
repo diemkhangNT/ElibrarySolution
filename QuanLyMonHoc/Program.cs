@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuanLyMonHoc.Data;
+using QuanLyMonHoc.Interface;
 using QuanLyMonHoc.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +26,11 @@ builder.Services.AddDbContext<MonHocDbContext>(options =>
 
 // Đăng ký interface và thực hiện các chức năng của nó trong file
 builder.Services.AddScoped<IExtension, Extension>();
+builder.Services.AddScoped<ICrudCauHoi, CrudCauHoi>();
+builder.Services.AddScoped<ICrudLopHoc, CrudLopHoc>();
+builder.Services.AddScoped<ICrudMonHoc, CrudMonHoc>();
+builder.Services.AddScoped<ICrudNienKhoa, CrudNienKhoa>();
+builder.Services.AddScoped<ICrudTraLoi, CrudTraLoi>();
 
 #endregion
 

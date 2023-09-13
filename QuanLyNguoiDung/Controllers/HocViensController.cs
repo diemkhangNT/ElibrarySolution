@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyNguoiDung.Data;
 using QuanLyNguoiDung.Dto;
+using QuanLyNguoiDung.Interface;
 using QuanLyNguoiDung.Model;
-using QuanLyNguoiDung.Services;
 
 namespace QuanLyNguoiDung.Controllers
 {
@@ -19,13 +19,15 @@ namespace QuanLyNguoiDung.Controllers
     {
         private readonly UserDBContext _context;
         private readonly IExtensionServices _extensionServices;
+        private readonly ICrudHVService _crudService;
         private readonly IMapper _mapper;
 
-        public HocViensController(UserDBContext context, IExtensionServices extensionServices, IMapper mapper)
+        public HocViensController(UserDBContext context, IExtensionServices extensionServices, IMapper mapper, ICrudHVService crudHVService)
         {
             _context = context;
             _extensionServices = extensionServices;
             _mapper = mapper;
+            _crudService = crudHVService;
         }
 
         // GET: api/HocViens
@@ -36,49 +38,60 @@ namespace QuanLyNguoiDung.Controllers
           {
               return NotFound();
           }
-            return await _context.HocViens.ToListAsync();
+          var hocViens = await _crudService.Get_HocViens();
+            return hocViens.ToList();
         }
 
         // GET: api/HocViens/5
         [HttpGet("{id}")]
         public async Task<ActionResult<HocVien>> GetHocVien(string id)
         {
-          if (_context.HocViens == null)
-          {
-              return NotFound();
-          }
-            var hocVien = await _context.HocViens.FindAsync(id);
-
+            HocVien hocVien = await _crudService.Get_HovVien(id);
             if (hocVien == null)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy thông báo có id = " + id + "!");
             }
-
-            return hocVien;
+            else return hocVien;
         }
 
         // PUT: api/HocViens/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutHocVien(string id,[FromForm] HocVien hocVien, IFormFile? HinhDaiDien)
+        public async Task<IActionResult> PutHocVien(string id,[FromForm] HocVienDto hocVienDto, IFormFile? HinhDaiDien)
         {
-            if (id != hocVien.MaHV)
+            HocVien hocVien = _mapper.Map<HocVien>(hocVienDto);
+            if (!_extensionServices.HocVienExists(id))
             {
-                return BadRequest();
+                return BadRequest("Không tồn tại mã học viên này!");
+            }
+            if (_extensionServices.IsEmailHVUnique(hocVien.Email))
+            {
+                return BadRequest("Email này đã được sử dụng! Vui lòng nhập email khác!");
+            }
+            else if (_extensionServices.IsUserNameHVUnique(hocVien.Username))
+            {
+                return BadRequest("Tên đăng nhập này đã được sử dụng! Vui lòng nhập tên khác!");
+            }
+            else if (!_extensionServices.IsNumberPhone(hocVien.SDTLienLac))
+            {
+                return BadRequest("Số điện thoại không hợp lệ!");
+            }
+            else if (!_extensionServices.ValidatePassword(hocVien.Password))
+            {
+                return BadRequest("Password phải ít nhất 8 ký tự, ít nhất một ký tự in hoa, chữ thường, số và ký tự đặt biệt!!");
             }
             if (HinhDaiDien != null)
             {
                 _extensionServices.UploadImageHV(hocVien, HinhDaiDien);
             }
-            _context.Entry(hocVien).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                hocVien.MaHV = id;
+                await _crudService.Put_HocVien(hocVien);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!HocVienExists(id))
+                if (!_extensionServices.HocVienExists(id))
                 {
                     return NotFound();
                 }
@@ -87,7 +100,6 @@ namespace QuanLyNguoiDung.Controllers
                     throw;
                 }
             }
-
             return NoContent();
         }
 
@@ -117,22 +129,18 @@ namespace QuanLyNguoiDung.Controllers
             {
                 return BadRequest("Password phải ít nhất 8 ký tự, ít nhất một ký tự in hoa, chữ thường, số và ký tự đặt biệt!!");
             }
-            else
+            if (HinhDaiDien != null)
             {
-                if (HinhDaiDien != null)
-                {
-                    _extensionServices.UploadImageHV(hocVien, HinhDaiDien);
-                }
-                _extensionServices.AutoPK_HocVien(hocVien);
-                _context.HocViens.Add(hocVien);
+                _extensionServices.UploadImageHV(hocVien, HinhDaiDien);
             }
             try
             {
-                await _context.SaveChangesAsync();
+                _extensionServices.AutoPK_HocVien(hocVien);
+                await _crudService.Post_HocVien(hocVien);
             }
             catch (DbUpdateException)
             {
-                if (HocVienExists(hocVien.MaHV))
+                if (_extensionServices.HocVienExists(hocVien.MaHV))
                 {
                     return Conflict();
                 }
@@ -141,7 +149,6 @@ namespace QuanLyNguoiDung.Controllers
                     throw;
                 }
             }
-
             return CreatedAtAction("GetHocVien", new { id = hocVien.MaHV }, hocVien);
         }
 
@@ -149,25 +156,12 @@ namespace QuanLyNguoiDung.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteHocVien(string id)
         {
-            if (_context.HocViens == null)
+            bool flag = await _crudService.Delete_HocVien(id);
+            if (!flag)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy!");
             }
-            var hocVien = await _context.HocViens.FindAsync(id);
-            if (hocVien == null)
-            {
-                return NotFound();
-            }
-
-            _context.HocViens.Remove(hocVien);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool HocVienExists(string id)
-        {
-            return (_context.HocViens?.Any(e => e.MaHV == id)).GetValueOrDefault();
+            else return Ok("Đã xóa thành công!");
         }
     }
 }

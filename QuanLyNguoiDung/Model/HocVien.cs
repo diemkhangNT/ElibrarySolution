@@ -7,7 +7,7 @@ namespace QuanLyNguoiDung.Model
     public class HocVien
     {
         [Key]
-        public string? MaHV { get; set; }
+        public string MaHV { get; set; }
 
         [StringLength(50)]
         public string TenHV { get; set; }

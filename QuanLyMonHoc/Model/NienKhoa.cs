@@ -7,7 +7,7 @@ namespace QuanLyMonHoc.Model
     public class NienKhoa
     {
         [Key]
-        public string? MaNK { get; set; }
+        public string MaNK { get; set; }
         [Required]
         public int TGBatDau { get; set; }
         [Required]

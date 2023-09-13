@@ -9,12 +9,12 @@ namespace QuanLyMonHoc.Data
 
         public virtual DbSet<MonHoc> MonHocs { get; set; }
 
-        public DbSet<QuanLyMonHoc.Model.HoiDap>? HoiDap { get; set; }
+        public DbSet<QuanLyMonHoc.Model.HoiDap>? HoiDaps { get; set; }
 
-        public DbSet<QuanLyMonHoc.Model.LopHoc>? LopHoc { get; set; }
+        public DbSet<QuanLyMonHoc.Model.LopHoc>? LopHocs { get; set; }
 
-        public DbSet<QuanLyMonHoc.Model.NienKhoa>? NienKhoa { get; set; }
+        public DbSet<QuanLyMonHoc.Model.NienKhoa>? NienKhoas { get; set; }
 
-        public DbSet<QuanLyMonHoc.Model.TraLoi>? TraLoi { get; set; }
+        public DbSet<QuanLyMonHoc.Model.TraLoi>? TraLois { get; set; }
     }
 }

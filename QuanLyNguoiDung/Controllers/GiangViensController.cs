@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using QuanLyNguoiDung.Data;
 using QuanLyNguoiDung.Dto;
+using QuanLyNguoiDung.Interface;
 using QuanLyNguoiDung.Model;
-using QuanLyNguoiDung.Services;
 
 namespace QuanLyNguoiDung.Controllers
 {
@@ -20,42 +20,39 @@ namespace QuanLyNguoiDung.Controllers
     {
         private readonly UserDBContext _context;
         private readonly IExtensionServices _extensionServices;
+        private readonly ICrudGVService _crudService;
         private readonly IMapper _mapper;
 
-        public GiangViensController(UserDBContext context, IExtensionServices extensionServices, IMapper mapper)
+        public GiangViensController(UserDBContext context, IExtensionServices extensionServices, IMapper mapper, ICrudGVService crudService)
         {
             _context = context;
             _extensionServices = extensionServices;
             _mapper = mapper;
+            _crudService = crudService;
         }
 
         // GET: api/GiangViens
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GiangVien>>> GetGiangViens()
         {
-          if (_context.GiangViens == null)
-          {
-              return NotFound();
-          }
-            return await _context.GiangViens.ToListAsync();
+            if (_context.GiangViens == null)
+            {
+                return NotFound();
+            }
+            var listLTB = await _crudService.Get_GiangViens();
+            return listLTB.ToList();
         }
 
         // GET: api/GiangViens/5
         [HttpGet("{id}")]
         public async Task<ActionResult<GiangVien>> GetGiangVien(string id)
         {
-          if (_context.GiangViens == null)
-          {
-              return NotFound();
-          }
-            var giangVien = await _context.GiangViens.FindAsync(id);
-
+            GiangVien giangVien = await _crudService.Get_GiangVien(id);
             if (giangVien == null)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy thông báo có id = " + id + "!");
             }
-
-            return giangVien;
+            else return giangVien;
         }
 
         // PUT: api/GiangViens/5
@@ -64,23 +61,38 @@ namespace QuanLyNguoiDung.Controllers
         public async Task<IActionResult> PutGiangVien(string id, [FromForm] GiangVienDto giangVienDto, IFormFile? HinhDaiDien)
         {
             GiangVien giangVien = _mapper.Map<GiangVien>(giangVienDto);
-            if (id != giangVien.MaGV)
+            if (!_extensionServices.GiangVienExists(id))
             {
-                return BadRequest();
+                return BadRequest("Không tồn tại mã giảng viên này!");
             }
-            if(HinhDaiDien != null)
+            if (_extensionServices.IsEmailGVUnique(giangVien.Email))
+            {
+                return BadRequest("Email này đã được sử dụng! Vui lòng nhập email khác!");
+            }
+            else if (_extensionServices.IsUserNameGVUnique(giangVien.Username))
+            {
+                return BadRequest("Tên đăng nhập này đã được sử dụng! Vui lòng nhập tên khác!");
+            }
+            else if (!_extensionServices.IsNumberPhone(giangVien.SDTLienLac))
+            {
+                return BadRequest("Số điện thoại không hợp lệ!");
+            }
+            else if (!_extensionServices.ValidatePassword(giangVien.Password))
+            {
+                return BadRequest("Password phải ít nhất 8 ký tự, ít nhất một ký tự in hoa, chữ thường, số và ký tự đặt biệt!!");
+            }
+            if (HinhDaiDien != null)
             {
                 _extensionServices.UploadImageGV(giangVien, HinhDaiDien);
             }
-            _context.Entry(giangVien).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                giangVien.MaGV = id;
+                await _crudService.Put_GiangVien(giangVien);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!GiangVienExists(id))
+                if (!_extensionServices.GiangVienExists(id))
                 {
                     return NotFound();
                 }
@@ -90,7 +102,7 @@ namespace QuanLyNguoiDung.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok("Thông tin đã được cập nhật!");
         }
 
         // POST: api/GiangViens
@@ -116,22 +128,18 @@ namespace QuanLyNguoiDung.Controllers
             {
                 return BadRequest("Password phải ít nhất 8 ký tự, ít nhất một ký tự in hoa, chữ thường, số và ký tự đặt biệt!!");
             }
-            else
+            if(HinhDaiDien != null)
             {
-                if(HinhDaiDien != null)
-                {
-                    _extensionServices.UploadImageGV(giangVien, HinhDaiDien);
-                }
-                _extensionServices.AutoPK_GiangVien(giangVien);
-                _context.GiangViens.Add(giangVien);
+               _extensionServices.UploadImageGV(giangVien, HinhDaiDien);
             }
             try
             {
-                await _context.SaveChangesAsync();
+                _extensionServices.AutoPK_GiangVien(giangVien);
+                await _crudService.Post_GiangVien(giangVien);
             }
             catch (DbUpdateException)
             {
-                if (GiangVienExists(giangVien.MaGV))
+                if (_extensionServices.GiangVienExists(giangVien.MaGV))
                 {
                     return Conflict();
                 }
@@ -148,25 +156,12 @@ namespace QuanLyNguoiDung.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteGiangVien(string id)
         {
-            if (_context.GiangViens == null)
+            bool flag = await _crudService.Delete_GiangVien(id);
+            if (!flag)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy!");
             }
-            var giangVien = await _context.GiangViens.FindAsync(id);
-            if (giangVien == null)
-            {
-                return NotFound();
-            }
-
-            _context.GiangViens.Remove(giangVien);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool GiangVienExists(string id)
-        {
-            return (_context.GiangViens?.Any(e => e.MaGV == id)).GetValueOrDefault();
+            else return Ok("Đã xóa thành công!");
         }
     }
 }

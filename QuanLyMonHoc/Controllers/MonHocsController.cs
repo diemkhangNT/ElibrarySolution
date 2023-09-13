@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyMonHoc.Data;
 using QuanLyMonHoc.Dto;
+using QuanLyMonHoc.Interface;
 using QuanLyMonHoc.Model;
-using QuanLyMonHoc.Services;
 
 namespace QuanLyMonHoc.Controllers
 {
@@ -19,41 +19,38 @@ namespace QuanLyMonHoc.Controllers
     {
         private readonly MonHocDbContext _context;
         private readonly IExtension _extension;
+        private readonly ICrudMonHoc _crudService;
         private readonly IMapper _mapper;
-        public MonHocsController(MonHocDbContext context, IExtension extension, IMapper mapper)
+        public MonHocsController(MonHocDbContext context, IExtension extension, IMapper mapper, ICrudMonHoc crudService)
         {
             _context = context;
             _extension = extension;
             _mapper = mapper;
+            _crudService = crudService;
         }
 
         // GET: api/MonHocs
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MonHoc>>> GetMonHocs()
         {
-          if (_context.MonHocs == null)
-          {
-              return NotFound();
-          }
-            return await _context.MonHocs.ToListAsync();
+            if (_context.MonHocs == null)
+            {
+                return NotFound();
+            }
+            var listLTB = await _crudService.Get_MonHocs();
+            return listLTB.ToList();
         }
 
         // GET: api/MonHocs/5
         [HttpGet("{id}")]
         public async Task<ActionResult<MonHoc>> GetMonHoc(string id)
         {
-          if (_context.MonHocs == null)
-          {
-              return NotFound();
-          }
-            var monHoc = await _context.MonHocs.FindAsync(id);
-
+            MonHoc monHoc = await _crudService.Get_MonHoc(id);
             if (monHoc == null)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy môn học có id = " + id + "!");
             }
-
-            return monHoc;
+            else return monHoc;
         }
 
         // PUT: api/MonHocs/5
@@ -62,21 +59,20 @@ namespace QuanLyMonHoc.Controllers
         public async Task<IActionResult> PutMonHoc(string id, [FromForm] MonHocDto monHocDto)
         {
             MonHoc monHoc = _mapper.Map<MonHoc>(monHocDto);
-            if (id != monHoc.MaMH)
+            if (!_extension.MonHocExists(id))
             {
-                return BadRequest();
+                return NotFound("Không tìm thấy id!");
             }
             if (_extension.IsExistNameMonHoc_Put(monHoc))
             {
-                monHoc.NgayGuiPheDuyet = DateTime.Now;  
-                _context.Entry(monHoc).State = EntityState.Modified;
                 try
                 {
-                    await _context.SaveChangesAsync();
+                    monHoc.MaMH = id;
+                    await _crudService.Put_MonHoc(monHoc);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MonHocExists(id))
+                    if (!_extension.MonHocExists(id))
                     {
                         return NotFound();
                     }
@@ -107,15 +103,14 @@ namespace QuanLyMonHoc.Controllers
                 }
                 else
                 {
-                    _extension.AutoPK_MonHoc(monHoc);
-                    _context.MonHocs.Add(monHoc);
                     try
                     {
-                        await _context.SaveChangesAsync();
+                        _extension.AutoPK_MonHoc(monHoc);
+                        await _crudService.Post_MonHoc(monHoc);
                     }
                     catch (DbUpdateException)
                     {
-                        if (MonHocExists(monHoc.MaMH))
+                        if (_extension.MonHocExists(monHoc.MaMH))
                         {
                             return Conflict();
                         }
@@ -133,25 +128,12 @@ namespace QuanLyMonHoc.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMonHoc(string id)
         {
-            if (_context.MonHocs == null)
+            bool flag = await _crudService.Delete_MonHoc(id);
+            if (!flag)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy!");
             }
-            var monHoc = await _context.MonHocs.FindAsync(id);
-            if (monHoc == null)
-            {
-                return NotFound();
-            }
-
-            _context.MonHocs.Remove(monHoc);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool MonHocExists(string id)
-        {
-            return (_context.MonHocs?.Any(e => e.MaMH == id)).GetValueOrDefault();
+            else return Ok("Đã xóa thành công!");
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using QuanLyNguoiDung.Data;
+using QuanLyNguoiDung.Interface;
 using QuanLyNguoiDung.Model;
-using QuanLyNguoiDung.Services;
 using System.Collections.Generic;
 
 namespace QuanLyNguoiDung.Controllers
@@ -58,8 +58,8 @@ namespace QuanLyNguoiDung.Controllers
             {
                 byte[] b = System.IO.File.ReadAllBytes(filePath);
                 return File(b, "image/png");
-            }
-            return null;
+            }else
+                return NotFound("Không tồn tại hình ảnh có tên này!");
         }
         //
     }

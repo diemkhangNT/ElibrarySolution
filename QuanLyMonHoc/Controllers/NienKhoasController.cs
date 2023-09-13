@@ -7,8 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyMonHoc.Data;
+using QuanLyMonHoc.Dto;
+using QuanLyMonHoc.Interface;
 using QuanLyMonHoc.Model;
-using QuanLyMonHoc.Services;
 
 namespace QuanLyMonHoc.Controllers
 {
@@ -18,62 +19,60 @@ namespace QuanLyMonHoc.Controllers
     {
         private readonly MonHocDbContext _context;
         private readonly IExtension _extension;
-
-        public NienKhoasController(MonHocDbContext context, IExtension extension)
+        private readonly ICrudNienKhoa _crudService;
+        private readonly IMapper _mapper;
+        public NienKhoasController(MonHocDbContext context, IExtension extension, ICrudNienKhoa crudService, IMapper mapper)
         {
             _context = context;
             _extension = extension;
+            _crudService = crudService;
+            _mapper = mapper;
         }
 
         // GET: api/NienKhoas
         [HttpGet]
         public async Task<ActionResult<IEnumerable<NienKhoa>>> GetNienKhoa()
         {
-          if (_context.NienKhoa == null)
-          {
-              return NotFound();
-          }
-            return await _context.NienKhoa.ToListAsync();
+            if (_context.NienKhoas == null)
+            {
+                return NotFound();
+            }
+            var listLTB = await _crudService.Get_NienKhoas();
+            return listLTB.ToList();
         }
 
         // GET: api/NienKhoas/5
         [HttpGet("{id}")]
         public async Task<ActionResult<NienKhoa>> GetNienKhoa(string id)
         {
-          if (_context.NienKhoa == null)
-          {
-              return NotFound();
-          }
-            var nienKhoa = await _context.NienKhoa.FindAsync(id);
-
+            NienKhoa nienKhoa = await _crudService.Get_NienKhoa(id);
             if (nienKhoa == null)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy niên khóa có id = " + id + "!");
             }
-
-            return nienKhoa;
+            else return nienKhoa;
         }
 
         // PUT: api/NienKhoas/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutNienKhoa(string id, [FromForm] NienKhoa nienKhoa)
+        public async Task<IActionResult> PutNienKhoa(string id, [FromForm] NienKhoaDto nienKhoaDto)
         {
-            if (id != nienKhoa.MaNK)
+            NienKhoa nienKhoa = _mapper.Map<NienKhoa>(nienKhoaDto);
+            if (!_extension.NienKhoaExists(id))
             {
-                return BadRequest();
+                return NotFound("Không tìm thấy!");
             }
             if(_extension.IsCheckTime_put(nienKhoa.TGBatDau, nienKhoa.TGKetThuc, nienKhoa.MaNK))
             {
-                _context.Entry(nienKhoa).State = EntityState.Modified;
-
                 try
                 {
-                    await _context.SaveChangesAsync();
+                    nienKhoa.MaNK = id;
+                    await _crudService.Put_NienKhoa(nienKhoa);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!NienKhoaExists(id))
+                    if (!_extension.NienKhoaExists(id))
                     {
                         return NotFound();
                     }
@@ -93,23 +92,23 @@ namespace QuanLyMonHoc.Controllers
         // POST: api/NienKhoas
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<NienKhoa>> PostNienKhoa([FromForm] NienKhoa nienKhoa)
+        public async Task<ActionResult<NienKhoa>> PostNienKhoa([FromForm] NienKhoaDto nienKhoaDto)
         {
-          if (_context.NienKhoa == null)
+            NienKhoa nienKhoa = _mapper.Map<NienKhoa>(nienKhoaDto);
+            if (_context.NienKhoas == null)
           {
               return Problem("Entity set 'MonHocDbContext.NienKhoa'  is null.");
           }
           if(_extension.IsCheckTime(nienKhoa.TGBatDau, nienKhoa.TGKetThuc))
             {
-                _extension.AutoPK_NienKhoa(nienKhoa);
-                _context.NienKhoa.Add(nienKhoa);
                 try
                 {
-                    await _context.SaveChangesAsync();
+                    _extension.AutoPK_NienKhoa(nienKhoa);
+                    await _crudService.Post_NienKhoa(nienKhoa);
                 }
                 catch (DbUpdateException)
                 {
-                    if (NienKhoaExists(nienKhoa.MaNK))
+                    if (_extension.NienKhoaExists(nienKhoa.MaNK))
                     {
                         return Conflict();
                     }
@@ -129,25 +128,12 @@ namespace QuanLyMonHoc.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNienKhoa(string id)
         {
-            if (_context.NienKhoa == null)
+            bool flag = await _crudService.Delete_NienKhoa(id);
+            if (!flag)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy!");
             }
-            var nienKhoa = await _context.NienKhoa.FindAsync(id);
-            if (nienKhoa == null)
-            {
-                return NotFound();
-            }
-
-            _context.NienKhoa.Remove(nienKhoa);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool NienKhoaExists(string id)
-        {
-            return (_context.NienKhoa?.Any(e => e.MaNK == id)).GetValueOrDefault();
+            else return Ok("Đã xóa thành công!");
         }
     }
 }

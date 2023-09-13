@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyMonHoc.Data;
 using QuanLyMonHoc.Dto;
+using QuanLyMonHoc.Interface;
 using QuanLyMonHoc.Model;
-using QuanLyMonHoc.Services;
 
 namespace QuanLyMonHoc.Controllers
 {
@@ -19,42 +19,39 @@ namespace QuanLyMonHoc.Controllers
     {
         private readonly MonHocDbContext _context;
         private readonly IExtension _extension;
+        private readonly ICrudTraLoi _crudService;
         private readonly IMapper _mapper;
 
-        public TraLoisController(MonHocDbContext context, IExtension extension, IMapper mapper)
+        public TraLoisController(MonHocDbContext context, IExtension extension, IMapper mapper, ICrudTraLoi crudService)
         {
             _context = context;
             _extension = extension;
             _mapper = mapper;
+            _crudService = crudService;
         }
 
         // GET: api/TraLois
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TraLoi>>> GetTraLoi()
         {
-          if (_context.TraLoi == null)
-          {
-              return NotFound();
-          }
-            return await _context.TraLoi.ToListAsync();
+            if (_context.MonHocs == null)
+            {
+                return NotFound();
+            }
+            var listLTB = await _crudService.Get_TraLois();
+            return listLTB.ToList();
         }
 
         // GET: api/TraLois/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TraLoi>> GetTraLoi(string id)
         {
-          if (_context.TraLoi == null)
-          {
-              return NotFound();
-          }
-            var traLoi = await _context.TraLoi.FindAsync(id);
-
+            TraLoi traLoi = await _crudService.Get_TraLoi(id);
             if (traLoi == null)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy câu trả lời có id = " + id + "!");
             }
-
-            return traLoi;
+            else return traLoi;
         }
 
         // PUT: api/TraLois/5
@@ -63,20 +60,18 @@ namespace QuanLyMonHoc.Controllers
         public async Task<IActionResult> PutTraLoi(string id, [FromForm] TraLoiDto traLoiDto)
         {
             TraLoi traLoi = _mapper.Map<TraLoi>(traLoiDto);
-            if (id != traLoi.MaCauTL)
+            if (!_extension.TraLoiExists(id))
             {
-                return BadRequest();
+                return NotFound("Không tìm thấy!");
             }
-            traLoi.ThoiGian = DateTime.Now;
-            _context.Entry(traLoi).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                traLoi.MaCauTL = id;
+                await _crudService.Put_TraLoi(traLoi);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!TraLoiExists(id))
+                if (!_extension.TraLoiExists(id))
                 {
                     return NotFound();
                 }
@@ -95,19 +90,18 @@ namespace QuanLyMonHoc.Controllers
         public async Task<ActionResult<TraLoi>> PostTraLoi([FromForm] TraLoiDto traLoiDto)
         {
             TraLoi traLoi = _mapper.Map<TraLoi>(traLoiDto);
-            if (_context.TraLoi == null)
+            if (_context.TraLois == null)
           {
               return Problem("Entity set 'MonHocDbContext.TraLoi'  is null.");
           }
-            _extension.AutoPK_TraLoi(traLoi);
-            _context.TraLoi.Add(traLoi);
             try
             {
-                await _context.SaveChangesAsync();
+                _extension.AutoPK_TraLoi(traLoi);
+                await _crudService.Post_TraLoi(traLoi);
             }
             catch (DbUpdateException)
             {
-                if (TraLoiExists(traLoi.MaCauTL))
+                if (_extension.TraLoiExists(traLoi.MaCauTL))
                 {
                     return Conflict();
                 }
@@ -124,25 +118,13 @@ namespace QuanLyMonHoc.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTraLoi(string id)
         {
-            if (_context.TraLoi == null)
+            bool flag = await _crudService.Delete_TraLoi(id);
+            if (!flag)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy!");
             }
-            var traLoi = await _context.TraLoi.FindAsync(id);
-            if (traLoi == null)
-            {
-                return NotFound();
-            }
-
-            _context.TraLoi.Remove(traLoi);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            else return Ok("Đã xóa thành công!");
         }
 
-        private bool TraLoiExists(string id)
-        {
-            return (_context.TraLoi?.Any(e => e.MaCauTL == id)).GetValueOrDefault();
-        }
     }
 }

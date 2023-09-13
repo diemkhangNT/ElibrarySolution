@@ -16,6 +16,8 @@ namespace QuanLyMonHoc.Mapper
             CreateMap<HoiDapDto, HoiDap>();
             CreateMap<TraLoiDto, TraLoi>();
             CreateMap<TraLoi, TraLoiDto>();
+            CreateMap<NienKhoaDto, NienKhoa>();
+            CreateMap<NienKhoa, NienKhoaDto>();
         }
     }
 }

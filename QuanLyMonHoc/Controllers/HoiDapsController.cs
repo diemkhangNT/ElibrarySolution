@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyMonHoc.Data;
 using QuanLyMonHoc.Dto;
+using QuanLyMonHoc.Interface;
 using QuanLyMonHoc.Model;
-using QuanLyMonHoc.Services;
 
 namespace QuanLyMonHoc.Controllers
 {
@@ -19,43 +19,40 @@ namespace QuanLyMonHoc.Controllers
     {
         private readonly MonHocDbContext _context;
         private readonly IExtension _extension;
+        private readonly ICrudCauHoi _crudService;
         private readonly IMapper _mapper;
 
 
-        public HoiDapsController(MonHocDbContext context, IExtension extension, IMapper mapper)
+        public HoiDapsController(MonHocDbContext context, IExtension extension, IMapper mapper, ICrudCauHoi crudService)
         {
             _context = context;
             _extension = extension;
             _mapper = mapper;
+            _crudService = crudService;
         }
 
         // GET: api/HoiDaps
         [HttpGet]
         public async Task<ActionResult<IEnumerable<HoiDap>>> GetHoiDap()
         {
-          if (_context.HoiDap == null)
-          {
-              return NotFound();
-          }
-            return await _context.HoiDap.ToListAsync();
+            if (_context.HoiDaps == null)
+            {
+                return NotFound();
+            }
+            var listLTB = await _crudService.Get_HoiDaps();
+            return listLTB.ToList();
         }
 
         // GET: api/HoiDaps/5
         [HttpGet("{id}")]
         public async Task<ActionResult<HoiDap>> GetHoiDap(string id)
         {
-          if (_context.HoiDap == null)
-          {
-              return NotFound();
-          }
-            var hoiDap = await _context.HoiDap.FindAsync(id);
-
+            HoiDap hoiDap = await _crudService.Get_HoiDap(id);
             if (hoiDap == null)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy câu hỏi có id = " + id + "!");
             }
-
-            return hoiDap;
+            else return hoiDap;
         }
 
         // PUT: api/HoiDaps/5
@@ -64,20 +61,18 @@ namespace QuanLyMonHoc.Controllers
         public async Task<IActionResult> PutHoiDap(string id, [FromForm] HoiDapDto hoiDapDto)
         {
             HoiDap hoiDap = _mapper.Map<HoiDap>(hoiDapDto);
-            if (id != hoiDap.MaCauHoi)
+            if (!_extension.HoiDapExists(id))
             {
-                return BadRequest();
+                return NotFound("Không tìm thấy mã này!");
             }
-            hoiDap.ThoiGian = DateTime.Now;
-            _context.Entry(hoiDap).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                hoiDap.MaCauHoi = id;
+                await _crudService.Put_HoiDap(hoiDap);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!HoiDapExists(id))
+                if (!_extension.HoiDapExists(id))
                 {
                     return NotFound();
                 }
@@ -96,19 +91,18 @@ namespace QuanLyMonHoc.Controllers
         public async Task<ActionResult<HoiDap>> PostHoiDap([FromForm] HoiDapDto hoiDapDto)
         {
             HoiDap hoiDap = _mapper.Map<HoiDap>(hoiDapDto);
-            if (_context.HoiDap == null)
+            if (_context.HoiDaps == null)
           {
               return Problem("Entity set 'MonHocDbContext.HoiDap'  is null.");
           }
-            _extension.AutoPK_HoiDap(hoiDap);
-            _context.HoiDap.Add(hoiDap);
             try
             {
-                await _context.SaveChangesAsync();
+                _extension.AutoPK_HoiDap(hoiDap);
+                await _crudService.Post_HoiDap(hoiDap);
             }
             catch (DbUpdateException)
             {
-                if (HoiDapExists(hoiDap.MaCauHoi))
+                if (_extension.HoiDapExists(hoiDap.MaCauHoi))
                 {
                     return Conflict();
                 }
@@ -125,25 +119,12 @@ namespace QuanLyMonHoc.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteHoiDap(string id)
         {
-            if (_context.HoiDap == null)
+            bool flag = await _crudService.Delete_HoiDap(id);
+            if (!flag)
             {
-                return NotFound();
+                return NotFound("Không tìm thấy!");
             }
-            var hoiDap = await _context.HoiDap.FindAsync(id);
-            if (hoiDap == null)
-            {
-                return NotFound();
-            }
-
-            _context.HoiDap.Remove(hoiDap);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool HoiDapExists(string id)
-        {
-            return (_context.HoiDap?.Any(e => e.MaCauHoi == id)).GetValueOrDefault();
+            else return Ok("Đã xóa thành công!");
         }
     }
 }

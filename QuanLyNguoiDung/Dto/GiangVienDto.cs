@@ -4,7 +4,6 @@ namespace QuanLyNguoiDung.Dto
 {
     public class GiangVienDto
     {
-        public string? MaGV { get; set; }
 
         [StringLength(50)]
         public string TenGV { get; set; }

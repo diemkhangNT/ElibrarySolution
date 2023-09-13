@@ -1,6 +1,7 @@
-﻿using QuanLyMonHoc.Model;
+﻿using Microsoft.EntityFrameworkCore;
+using QuanLyMonHoc.Model;
 
-namespace QuanLyMonHoc.Services
+namespace QuanLyMonHoc.Interface
 {
     public interface IExtension
     {
@@ -13,6 +14,10 @@ namespace QuanLyMonHoc.Services
         bool IsCheckTime_put(int tgBD, int tgKT, string maNK);
         public void AutoPK_HoiDap(HoiDap hoiDap);
         public void AutoPK_TraLoi(TraLoi traLoi);
-
+        bool HoiDapExists(string id);
+        bool LopHocExists(string id);
+        bool MonHocExists(string id);
+        bool NienKhoaExists(string id);
+        bool TraLoiExists(string id);
     }
 }
