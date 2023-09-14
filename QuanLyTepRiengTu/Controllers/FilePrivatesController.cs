@@ -67,7 +67,7 @@ namespace QuanLyTepRiengTu.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutGiangVien(int id, TepRiengTuDto tepRiengTuDto)
+        public async Task<IActionResult> PutGiangVien(int id, [FromForm] TepRiengTuDto tepRiengTuDto)
         {
             TepRiengTu tepRT = _mapper.Map<TepRiengTu>(tepRiengTuDto);
             if (!_fileCrudService.TepRTExists(id))

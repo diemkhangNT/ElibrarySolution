@@ -44,12 +44,13 @@ namespace QuanLyTepRiengTu.Service
         public async Task<TepRiengTu> Put_TepRiengTu(TepRiengTu tepRiengTu)
         {
             var existTepRT = _context.tepRiengTus.FirstOrDefault(x => x.STT == tepRiengTu.STT);
-            //tepRiengTu.NguoiTao = existTepRT.NguoiTao;
             tepRiengTu.KichThuoc = existTepRT.KichThuoc;
             tepRiengTu.Url = existTepRT.Url;
+            tepRiengTu.NguoiTao = existTepRT.NguoiTao;
             tepRiengTu.NgayCapNhat = DateTime.Now;
             tepRiengTu.TheLoai = existTepRT.TheLoai;
             _context.tepRiengTus.Remove(existTepRT);
+            //_context.SaveChanges();
             _context.Entry(tepRiengTu).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return tepRiengTu;
