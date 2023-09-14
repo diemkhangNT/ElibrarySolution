@@ -20,6 +20,7 @@ builder.Services.AddDbContext<UserDBContext>(options =>
 builder.Services.AddScoped<IExtensionServices, ExtensionServices>();
 builder.Services.AddScoped<ICrudGVService, CrudGVService>();
 builder.Services.AddScoped<ICrudHVService, CrudHVService>();
+builder.Services.AddScoped<ICrudLDService, CrudLDService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

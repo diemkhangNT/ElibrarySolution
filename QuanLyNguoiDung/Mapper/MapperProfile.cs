@@ -10,6 +10,7 @@ namespace QuanLyNguoiDung.Mapper
         {
             CreateMap<GiangVienDto, GiangVien>();
             CreateMap<HocVienDto, HocVien>();
+            CreateMap<LeadershipDto, Leadership>();
         }
     }
 }

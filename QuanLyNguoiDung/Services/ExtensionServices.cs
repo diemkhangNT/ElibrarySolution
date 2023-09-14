@@ -119,6 +119,29 @@ namespace QuanLyNguoiDung.Services
             }
         }
 
+        public void UploadImageLD(Leadership leadership, IFormFile imageFile)
+        {
+            if (imageFile.Length > 0)
+            {
+                string path = _webHostEnvironment.WebRootPath + "\\uploads\\";
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+
+                }
+                using (FileStream fileStream = System.IO.File.Create(path + imageFile.FileName))
+                {
+                    imageFile.CopyTo(fileStream);
+                    fileStream.Flush();
+                    leadership.HinhDaiDien = imageFile.FileName;
+                }
+            }
+            else
+            {
+                leadership.HinhDaiDien = null;
+            }
+        }
+
         public bool GetImageById(string id)
         {
             throw new NotImplementedException();
@@ -132,6 +155,30 @@ namespace QuanLyNguoiDung.Services
         public bool GiangVienExists(string id)
         {
             return (_dbContext.GiangViens?.Any(e => e.MaGV == id)).GetValueOrDefault();
+        }
+
+        public void AutoPK_Leader(Leadership leadership)
+        {
+            Random rnd = new Random();
+            string num = rnd.Next(100, 1000000000).ToString();
+            leadership.MaLD = "#LD" + num;
+            leadership.NgayHopTac = DateTime.Now;
+            leadership.TrangThaiHD = true;
+        }
+
+        public bool IsEmailLDUnique(string emailLD)
+        {
+            return _dbContext.leaderships.Any(u => u.Email == emailLD);
+        }
+
+        public bool IsUserNameLDUnique(string username)
+        {
+            return _dbContext.leaderships.Any(u => u.Username == username);
+        }
+
+        public bool LeadershipExists(string id)
+        {
+            return (_dbContext.leaderships?.Any(e => e.MaLD == id)).GetValueOrDefault();
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -22,7 +24,7 @@ namespace QuanLyNguoiDung.Controllers
         private readonly IExtensionServices _extensionServices;
         private readonly ICrudGVService _crudService;
         private readonly IMapper _mapper;
-
+        
         public GiangViensController(UserDBContext context, IExtensionServices extensionServices, IMapper mapper, ICrudGVService crudService)
         {
             _context = context;

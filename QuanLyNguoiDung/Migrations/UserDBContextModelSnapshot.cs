@@ -117,6 +117,57 @@ namespace QuanLyNguoiDung.Migrations
 
                     b.ToTable("HocVien");
                 });
+
+            modelBuilder.Entity("QuanLyNguoiDung.Model.Leadership", b =>
+                {
+                    b.Property<string>("MaLD")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("DiaChi")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("GioiTinh")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("HinhDaiDien")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("NgayHopTac")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("NgaySinh")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SDTLienLac")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("TenLD")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool?>("TrangThaiHD")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("MaLD");
+
+                    b.ToTable("Leadership");
+                });
 #pragma warning restore 612, 618
         }
     }

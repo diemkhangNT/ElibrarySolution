@@ -9,5 +9,6 @@ namespace QuanLyNguoiDung.Data
 
         public DbSet<GiangVien> GiangViens { get; set; }
         public DbSet<HocVien> HocViens { get; set; }
+        public DbSet<Leadership> leaderships { get; set; }
     }
 }
