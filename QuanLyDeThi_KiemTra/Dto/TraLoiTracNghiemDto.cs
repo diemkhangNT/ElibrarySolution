@@ -1,17 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
-namespace QuanLyDeThi_KiemTra.Model
+﻿namespace QuanLyDeThi_KiemTra.Dto
 {
-    [Table("TraLoiTN")]
-    public class TLTracNghiem
+    public class TraLoiTracNghiemDto
     {
-
-        [Key]
         public string MaCH { get; set; }
-        [ForeignKey("MaCH")]
-        public virtual CHTracNghiem CHTracNghiem { get; set; }
-        
         public string NoiDungA { get; set; }
         public bool LaDapAnA { get; set; }
 

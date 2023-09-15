@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyDeThi_KiemTra.Model
 {
-    [Table("CauHoi")]
+    [Table("CauHoiTL")]
     public class CauHoiTL
     {
         [Key]

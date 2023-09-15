@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuanLyDeThi_KiemTra.Data;
+using QuanLyDeThi_KiemTra.Interface;
+using QuanLyDeThi_KiemTra.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,10 +24,12 @@ builder.Services.AddDbContext<DeThiDbContext>(options =>
 });
 
 // Đăng ký interface và thực hiện các chức năng của nó trong file
-//builder.Services.AddScoped<ICrudChuDe, CrudChuDe>();
-//builder.Services.AddScoped<ICrudTaiNguyen, CrudTaiNguyen>();
-//builder.Services.AddScoped<ICrudBaiGiang, CrudBaiGiang>();
-//builder.Services.AddScoped<IFileExtension, FileExtention>();
+builder.Services.AddScoped<ICrudCauHoiTracNghiem, CrudCauHoiTracNghiem>();
+builder.Services.AddScoped<ICrudCauHoiTuLuan, CrudCauHoiTuLuan>();
+builder.Services.AddScoped<ICrudDeThi, CrudDeThi>();
+builder.Services.AddScoped<IFileExtention, FileExtention>();
+builder.Services.AddScoped<ICrudTraLoiTracNghiem, CrudTraLoiTracNghiem>();
+builder.Services.AddScoped<ICrudTraLoiTuLuan, CrudTraLoiTuLuan>();
 
 #endregion
 var app = builder.Build();
