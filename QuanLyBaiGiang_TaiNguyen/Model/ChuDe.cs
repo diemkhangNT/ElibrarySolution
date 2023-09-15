@@ -8,6 +8,7 @@ namespace QuanLyBaiGiang_TaiNguyen.Model
         [Key]
         public string MaCD { get; set; }
         public string TenCD { get; set; }
+        [MaxLength(20)]
         public string MaMH { get; set; }
     }
 }

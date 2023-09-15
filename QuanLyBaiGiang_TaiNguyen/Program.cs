@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuanLyBaiGiang_TaiNguyen.Data;
+using QuanLyBaiGiang_TaiNguyen.Interface;
+using QuanLyBaiGiang_TaiNguyen.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +24,10 @@ builder.Services.AddDbContext<TaiNguyenDbContext>(options =>
 });
 
 // Đăng ký interface và thực hiện các chức năng của nó trong file
-//builder.Services.AddScoped<IExtension, Extension>();
+builder.Services.AddScoped<ICrudChuDe, CrudChuDe>();
+builder.Services.AddScoped<ICrudTaiNguyen, CrudTaiNguyen>();
+builder.Services.AddScoped<ICrudBaiGiang, CrudBaiGiang>();
+builder.Services.AddScoped<IFileExtension, FileExtention>();
 
 #endregion
 var app = builder.Build();
@@ -35,7 +40,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
