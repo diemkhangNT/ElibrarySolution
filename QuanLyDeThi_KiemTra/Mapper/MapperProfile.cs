@@ -10,7 +10,9 @@ namespace QuanLyDeThi_KiemTra.Mapper
         {
             CreateMap<DeThiDto, DeThi>();
             CreateMap<CauHoiTuLuanDto, CauHoiTL>();
+            CreateMap<TraLoiTracNghiemDto, TLTracNghiem>();
             CreateMap<CauHoiTracNghiemDto, CHTracNghiem>();
+            CreateMap<TraLoiTuLuanDto, TraLoiTL>();
         }
     }
 }

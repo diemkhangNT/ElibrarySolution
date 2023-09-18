@@ -30,6 +30,7 @@ builder.Services.AddScoped<ICrudDeThi, CrudDeThi>();
 builder.Services.AddScoped<IFileExtention, FileExtention>();
 builder.Services.AddScoped<ICrudTraLoiTracNghiem, CrudTraLoiTracNghiem>();
 builder.Services.AddScoped<ICrudTraLoiTuLuan, CrudTraLoiTuLuan>();
+builder.Services.AddScoped<ICrudTepCauHoi, CrudTepCauHoi>();
 
 #endregion
 var app = builder.Build();

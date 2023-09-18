@@ -34,6 +34,16 @@ namespace QuanLyDeThi_KiemTra.Services
                     return fileName;
                 else if (theLoai.Contains("BaiGiang") && (extention.ToLower().Contains(".docx") || extention.ToLower().Contains(".pdf") || extention.ToLower().Contains(".xlsx") || extention.ToLower().Contains(".xls") || extention.ToLower().Contains(".doc")))
                     return fileName;
+                if (theLoai.Contains("DapAnTuLuan"))
+                {
+                    if (!(theLoai.Contains("DapAnTuLuan") && (extention.ToLower().Contains(".docx") || extention.ToLower().Contains(".doc") || extention.ToLower().Contains(".pdf"))))
+                        return fileName;
+                }
+                if (theLoai.Contains("CauHoi"))
+                {
+                    if (!(theLoai.Contains("CauHoi") && (extention.ToLower().Contains(".xlsx") || extention.ToLower().Contains(".xls"))))
+                        return fileName;
+                }
                 fileName = DateTime.Now.Ticks.ToString() + extention;
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), $"wwwroot\\{theLoai}");
 

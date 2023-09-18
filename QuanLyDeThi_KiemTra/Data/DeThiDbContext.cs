@@ -13,6 +13,7 @@ namespace QuanLyDeThi_KiemTra.Data
         public DbSet<CHTracNghiem> ChTracNghiems { get; set; }
         public DbSet<TraLoiTL> CauTraLoiTLs { get;set; }
         public DbSet<TLTracNghiem> TLTracNghiems { get;set; }
+        public DbSet<TepCauhoi> tepCauhois { get; set; }
     }
 
 }

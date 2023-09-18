@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyDeThi_KiemTra.Data;
+using QuanLyDeThi_KiemTra.Dto;
 using QuanLyDeThi_KiemTra.Interface;
 using QuanLyDeThi_KiemTra.Model;
 
@@ -46,7 +47,7 @@ namespace QuanLyDeThi_KiemTra.Controllers
             TLTracNghiem tL = await _crudService.Get_TLTracNghiem(id);
             if (tL == null)
             {
-                return NotFound("Không tìm thấy câu hỏi trắc nghiệm có id = " + id + "!");
+                return NotFound("Không tìm thấy câu trả lời trắc nghiệm có id = " + id + "!");
             }
             else return tL;
         }
@@ -54,9 +55,9 @@ namespace QuanLyDeThi_KiemTra.Controllers
         // PUT: api/TLTracNghiems/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTLTracNghiem(string id, TLTracNghiem tLTracNghiem)
+        public async Task<IActionResult> PutTLTracNghiem(string id,[FromForm] TraLoiTracNghiemDto tLTracNghiemDto)
         {
-            TLTracNghiem tL = _mapper.Map<TLTracNghiem>(tLTracNghiem);
+            TLTracNghiem tL = _mapper.Map<TLTracNghiem>(tLTracNghiemDto);
             if (!_crudService.TLTracNghiemExists(id))
             {
                 return NotFound("Không tìm thấy!");
@@ -83,19 +84,20 @@ namespace QuanLyDeThi_KiemTra.Controllers
         // POST: api/TLTracNghiems
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TLTracNghiem>> PostTLTracNghiem(TLTracNghiem tLTracNghiem)
+        public async Task<ActionResult<TLTracNghiem>> PostTLTracNghiem([FromForm] TraLoiTracNghiemDto tLTracNghiemDto)
         {
+            TLTracNghiem tL = _mapper.Map<TLTracNghiem>(tLTracNghiemDto);
             if (_context.TLTracNghiems == null)
           {
               return Problem("Entity set 'DeThiDbContext.TLTracNghiems'  is null.");
           }
             try
             {
-                await _crudService.Post_TLTracNghiem(tLTracNghiem);
+                await _crudService.Post_TLTracNghiem(tL);
             }
             catch (DbUpdateException)
             {
-                if (_crudService.TLTracNghiemExists(tLTracNghiem.MaCH))
+                if (_crudService.TLTracNghiemExists(tL.MaCH))
                 {
                     return Conflict();
                 }
@@ -105,7 +107,7 @@ namespace QuanLyDeThi_KiemTra.Controllers
                 }
             }
 
-            return CreatedAtAction("GetTLTracNghiem", new { id = tLTracNghiem.MaCH }, tLTracNghiem);
+            return CreatedAtAction("GetTLTracNghiem", new { id = tL.MaCH }, tL);
         }
 
         // DELETE: api/TLTracNghiems/5

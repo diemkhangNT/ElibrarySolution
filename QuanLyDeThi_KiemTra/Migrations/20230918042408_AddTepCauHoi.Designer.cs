@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuanLyDeThi_KiemTra.Data;
 
@@ -11,9 +12,10 @@ using QuanLyDeThi_KiemTra.Data;
 namespace QuanLyDeThi_KiemTra.Migrations
 {
     [DbContext(typeof(DeThiDbContext))]
-    partial class DeThiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230918042408_AddTepCauHoi")]
+    partial class AddTepCauHoi
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

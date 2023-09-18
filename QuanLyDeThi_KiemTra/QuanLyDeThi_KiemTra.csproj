@@ -24,6 +24,7 @@
   <ItemGroup>
     <Folder Include="wwwroot\DeThi\" />
     <Folder Include="wwwroot\CauHoi\" />
+    <Folder Include="wwwroot\DapAnTuLuan\" />
   </ItemGroup>
 
 </Project>
