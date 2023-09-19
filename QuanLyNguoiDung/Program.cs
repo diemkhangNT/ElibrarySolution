@@ -43,7 +43,7 @@ builder.Services.AddAuthentication(options =>
             IssuerSigningKey = new SymmetricSecurityKey(key),
             ValidateIssuer = false,
             ValidateAudience = false,
-            RequireExpirationTime = false,
+            RequireExpirationTime = true,
             ValidateLifetime = true
         };
     });

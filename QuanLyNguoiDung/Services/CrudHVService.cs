@@ -84,7 +84,7 @@ namespace QuanLyNguoiDung.Services
                     new Claim("TockenId", Guid.NewGuid().ToString())
                 }),
 
-                Expires = DateTime.UtcNow.AddMinutes(1),
+                Expires = DateTime.Now.AddMinutes(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256)
             };
 
