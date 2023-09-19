@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -32,9 +33,38 @@ namespace QuanLyNguoiDung.Controllers
             _mapper = mapper;
             _crudService = crudService;
         }
+        [Route("Login")]
+        [HttpPost]
+        public async Task<IActionResult> Login([FromBody] LoginModelDto login)
+        {
+            var user = _context.GiangViens.SingleOrDefault(p => p.Username == login.Username
+            && p.Password == login.Password);
+            if (user == null)
+            {
+                return BadRequest(new AuthResult()
+                {
+                    Result = false,
+                    Message = new List<string>()
+                    {
+                        "Invalid username/password"
+                    }
+                });
+            }
+            return Ok(new AuthResult()
+            {
+                Result = true,
+                Message = new List<string>()
+                    {
+                        "User valid!",
+                        "Authentication success"
+                    },
+                Token = _crudService.GenarateJwtToken(user)
+            });
+        }
 
         // GET: api/GiangViens
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<GiangVien>>> GetGiangViens()
         {
             if (_context.GiangViens == null)

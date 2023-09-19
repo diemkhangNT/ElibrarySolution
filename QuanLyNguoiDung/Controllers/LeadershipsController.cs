@@ -30,6 +30,35 @@ namespace QuanLyNguoiDung.Controllers
             _crudService = crudService;
         }
 
+        [Route("Login")]
+        [HttpPost]
+        public async Task<IActionResult> Login([FromBody] LoginModelDto login)
+        {
+            var user = _context.leaderships.SingleOrDefault(p => p.Username == login.Username
+            && p.Password == login.Password);
+            if (user == null)
+            {
+                return BadRequest(new AuthResult()
+                {
+                    Result = false,
+                    Message = new List<string>()
+                    {
+                        "Invalid username/password"
+                    }
+                });
+            }
+            return Ok(new AuthResult()
+            {
+                Result = true,
+                Message = new List<string>()
+                    {
+                        "User valid!",
+                        "Authentication success"
+                    },
+                Token = _crudService.GenarateJwtToken(user)
+            });
+        }
+
         // GET: api/Leaderships
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Leadership>>> Getleaderships()
