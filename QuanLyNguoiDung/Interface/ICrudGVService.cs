@@ -9,6 +9,7 @@ namespace QuanLyNguoiDung.Interface
         public Task<GiangVien> Put_GiangVien(GiangVien giangVien);
         public Task<GiangVien> Post_GiangVien(GiangVien giangVien);
         public Task<bool> Delete_GiangVien(string maGV);
-        public string GenarateJwtToken(GiangVien user);
+        public Task<TokenModel> GenarateJwtToken(GiangVien user);
+        public string GenerateRefreshToken();
     }
 }

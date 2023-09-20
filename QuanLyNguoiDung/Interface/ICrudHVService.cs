@@ -9,6 +9,7 @@ namespace QuanLyNguoiDung.Interface
         public Task<HocVien> Put_HocVien(HocVien hocVien);
         public Task<HocVien> Post_HocVien(HocVien hocVien);
         public Task<bool> Delete_HocVien(string maHV);
-        public string GenarateJwtToken(HocVien user);
+        public Task<TokenModel> GenarateJwtToken(HocVien user);
+        public string GenerateRefreshToken();
     }
 }

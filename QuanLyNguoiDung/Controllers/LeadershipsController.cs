@@ -21,13 +21,15 @@ namespace QuanLyNguoiDung.Controllers
         private readonly IExtensionServices _extensionServices;
         private readonly ICrudLDService _crudService;
         private readonly IMapper _mapper;
+        private readonly IRefreshToken _refreshToken;
 
-        public LeadershipsController(UserDBContext context, IExtensionServices extensionServices, IMapper mapper, ICrudLDService crudService)
+        public LeadershipsController(UserDBContext context, IExtensionServices extensionServices, IMapper mapper, ICrudLDService crudService, IRefreshToken refreshToken)
         {
             _context = context;
             _extensionServices = extensionServices;
             _mapper = mapper;
             _crudService = crudService;
+            _refreshToken = refreshToken;
         }
 
         [Route("Login")]
@@ -41,21 +43,42 @@ namespace QuanLyNguoiDung.Controllers
                 return BadRequest(new AuthResult()
                 {
                     Result = false,
-                    Message = new List<string>()
-                    {
-                        "Invalid username/password"
-                    }
+                    Message = "Invalid username/password"
                 });
             }
+            var token = await _crudService.GenarateJwtToken(user);
             return Ok(new AuthResult()
             {
                 Result = true,
-                Message = new List<string>()
-                    {
-                        "User valid!",
-                        "Authentication success"
-                    },
-                Token = _crudService.GenarateJwtToken(user)
+                Message = "Valid token",
+                data = token
+            });
+        }
+
+        [Route("RenewToken")]
+        [HttpPost]
+        public async Task<IActionResult> RefreshToken(TokenModel tokenModel)
+        {
+            bool refresh = _refreshToken.CheckRefreshToken(tokenModel);
+            TokenModel token = new TokenModel();
+            if (refresh)
+            {
+                var storedToken = _context.refreshTokens.FirstOrDefault(x => x.Token == tokenModel.RefreshToken);
+                //create new token
+                var user = _context.leaderships.SingleOrDefault(hv => hv.MaLD == storedToken.UserID);
+                token = await _crudService.GenarateJwtToken(user);
+                return Ok(new AuthResult()
+                {
+                    Result = true,
+                    Message = "RefeshToken successful!",
+                    data = token
+                });
+            }
+            return BadRequest(new AuthResult()
+            {
+                Result = false,
+                Message = "RefeshToken went wrong!",
+                data = token
             });
         }
 

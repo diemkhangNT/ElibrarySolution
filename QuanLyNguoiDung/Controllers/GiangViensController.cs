@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Common;
 using QuanLyNguoiDung.Data;
 using QuanLyNguoiDung.Dto;
 using QuanLyNguoiDung.Interface;
@@ -25,13 +26,15 @@ namespace QuanLyNguoiDung.Controllers
         private readonly IExtensionServices _extensionServices;
         private readonly ICrudGVService _crudService;
         private readonly IMapper _mapper;
-        
-        public GiangViensController(UserDBContext context, IExtensionServices extensionServices, IMapper mapper, ICrudGVService crudService)
+        private readonly IRefreshToken _refreshToken;
+
+        public GiangViensController(UserDBContext context, IExtensionServices extensionServices, IMapper mapper, ICrudGVService crudService, IRefreshToken refreshToken)
         {
             _context = context;
             _extensionServices = extensionServices;
             _mapper = mapper;
             _crudService = crudService;
+            _refreshToken = refreshToken;
         }
         [Route("Login")]
         [HttpPost]
@@ -44,21 +47,43 @@ namespace QuanLyNguoiDung.Controllers
                 return BadRequest(new AuthResult()
                 {
                     Result = false,
-                    Message = new List<string>()
-                    {
-                        "Invalid username/password"
-                    }
+                    Message = "Invalid username/password"
                 });
             }
+            //Cấp token
+            var token = await _crudService.GenarateJwtToken(user);
             return Ok(new AuthResult()
             {
                 Result = true,
-                Message = new List<string>()
-                    {
-                        "User valid!",
-                        "Authentication success"
-                    },
-                Token = _crudService.GenarateJwtToken(user)
+                Message = "Valid token",
+                data = token
+            }) ;
+        }
+
+        [Route("RenewToken")]
+        [HttpPost]
+        public async Task<IActionResult> RefreshToken(TokenModel tokenModel)
+        {
+            bool refresh = _refreshToken.CheckRefreshToken(tokenModel);
+            TokenModel token = new TokenModel();
+            if (refresh)
+            {
+                var storedToken = _context.refreshTokens.FirstOrDefault(x => x.Token == tokenModel.RefreshToken);
+                //create new token
+                var userGV = _context.GiangViens.SingleOrDefault(gv => gv.MaGV == storedToken.UserID);
+                token = await _crudService.GenarateJwtToken(userGV);
+                return Ok(new AuthResult()
+                {
+                    Result = true,
+                    Message = "RefeshToken successful!",
+                    data = token
+                });
+            }
+            return BadRequest(new AuthResult()
+            {
+                Result = false,
+                Message = "RefeshToken went wrong!",
+                data = token
             });
         }
 

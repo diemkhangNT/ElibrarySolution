@@ -9,6 +9,7 @@ namespace QuanLyNguoiDung.Interface
         public Task<Leadership> Put_Leadership(Leadership leadership);
         public Task<Leadership> Post_Leadership(Leadership leadership);
         public Task<bool> Delete_Leadership(string maLD);
-        public string GenarateJwtToken(Leadership user);
+        public Task<TokenModel> GenarateJwtToken(Leadership user);
+        public string GenerateRefreshToken();
     }
 }

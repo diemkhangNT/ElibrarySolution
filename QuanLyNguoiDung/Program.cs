@@ -39,12 +39,17 @@ builder.Services.AddAuthentication(options =>
         jwt.SaveToken = true;
         jwt.TokenValidationParameters = new TokenValidationParameters()
         {
+            //ký vào token
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(key),
+            //tự cấp token
             ValidateIssuer = false,
             ValidateAudience = false,
+            //cài đặt thời gian token expire
             RequireExpirationTime = true,
-            ValidateLifetime = true
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        
         };
     });
 //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
@@ -56,6 +61,7 @@ builder.Services.AddScoped<IExtensionServices, ExtensionServices>();
 builder.Services.AddScoped<ICrudGVService, CrudGVService>();
 builder.Services.AddScoped<ICrudHVService, CrudHVService>();
 builder.Services.AddScoped<ICrudLDService, CrudLDService>();
+builder.Services.AddScoped<IRefreshToken, RefreshTokenService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
