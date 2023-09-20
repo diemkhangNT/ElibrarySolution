@@ -23,5 +23,8 @@ namespace QuanLyNguoiDung.Interface
         public void UploadImageHV(HocVien hocVien, IFormFile imageFile);
         public void UploadImageLD(Leadership leadership, IFormFile imageFile);
         public bool GetImageById(string fileName);
+        public string EncryptPassword(string password);
+        public string DecrypttPassword(string base64Encodedata);
+
     }
 }

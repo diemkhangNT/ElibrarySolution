@@ -40,16 +40,22 @@ namespace QuanLyNguoiDung.Controllers
         [HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginModelDto login)
         {
-            var user = _context.GiangViens.SingleOrDefault(p => p.Username == login.Username
-            && p.Password == login.Password);
+            var user = _context.GiangViens.SingleOrDefault(p => p.Username == login.Username);
             if (user == null)
             {
                 return BadRequest(new AuthResult()
                 {
                     Result = false,
-                    Message = "Invalid username/password"
+                    Message = "Invalid username"
                 });
             }
+            var passwordDecrypt = _extensionServices.DecrypttPassword(user.Password);
+            if (passwordDecrypt != login.Password)
+                return BadRequest(new AuthResult()
+                {
+                    Result = false,
+                    Message = "Invalid Password"
+                });
             //Cấp token
             var token = await _crudService.GenarateJwtToken(user);
             return Ok(new AuthResult()
@@ -192,6 +198,7 @@ namespace QuanLyNguoiDung.Controllers
             try
             {
                 _extensionServices.AutoPK_GiangVien(giangVien);
+                giangVien.Password = _extensionServices.EncryptPassword(giangVien.Password);
                 await _crudService.Post_GiangVien(giangVien);
             }
             catch (DbUpdateException)

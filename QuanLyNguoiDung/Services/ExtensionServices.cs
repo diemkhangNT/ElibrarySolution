@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using QuanLyNguoiDung.Data;
 using QuanLyNguoiDung.Interface;
 using QuanLyNguoiDung.Model;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace QuanLyNguoiDung.Services
@@ -179,6 +180,25 @@ namespace QuanLyNguoiDung.Services
         public bool LeadershipExists(string id)
         {
             return (_dbContext.leaderships?.Any(e => e.MaLD == id)).GetValueOrDefault();
+        }
+
+        public static string keySecret = "HW3Wd11iLnRSqwNWeuSiCPSbQ9QJkNe2"; //this string is 32 characters long
+
+        public string EncryptPassword(string password)
+        {
+            if (string.IsNullOrEmpty(password)) return "";
+            password += keySecret;
+            var passwordBytes = Encoding.UTF8.GetBytes(password);
+            return Convert.ToBase64String(passwordBytes);
+        }
+
+        public string DecrypttPassword(string base64Encodedata)
+        {
+            if (string.IsNullOrEmpty(base64Encodedata)) return "";
+            var base64EncodeBytes = Convert.FromBase64String(base64Encodedata);
+            var result = Encoding.UTF8.GetString(base64EncodeBytes);
+            result = result.Substring(0, result.Length - keySecret.Length);
+            return result;
         }
     }
 }
